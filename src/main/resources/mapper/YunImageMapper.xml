@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lfc.clouddocker.mapper.YunImageMapper">
+
+    <resultMap id="BaseResultMap" type="com.lfc.clouddocker.model.entity.YunImage">
+            <id property="id" column="id" />
+            <result property="repository" column="repository" />
+            <result property="tag" column="tag" />
+            <result property="imageId" column="image_id" />
+            <result property="imageSize" column="image_size" />
+            <result property="imageType" column="image_type" />
+            <result property="userId" column="user_id" />
+            <result property="createTime" column="create_time" />
+            <result property="updateIme" column="update_ime" />
+            <result property="isDelete" column="is_delete" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,repository,tag,image_id,image_size,image_type,
+        user_id,create_time,update_ime,is_delete
+    </sql>
+</mapper>
