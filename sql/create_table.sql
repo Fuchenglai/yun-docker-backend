@@ -29,7 +29,7 @@ create table if not exists yun_image
     id          bigint auto_increment comment 'id' primary key,
     repository  varchar(256)                           not null comment '镜像名称',
     tag         varchar(256) default 'latest'          not null comment 'tag',
-    image_id    varchar(256)                           not null comment '镜像id',
+    image_id    varchar(256)                           null comment '镜像id',
     image_size  int                                    null comment '镜像大小',
     image_type  tinyint      default 0                 not null comment '镜像类型：0-public,1-private',
     user_id     bigint                                 null comment '创建用户 id',

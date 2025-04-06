@@ -197,6 +197,8 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
                 .setSql("balance = balance + 300");  // 直接使用 SQL 表达式保证原子性
         userMapper.update(null, updateWrapper);
 
+        remove(containerId, userId);
+
         //向docker发送remove命令
         return dockerClient.removeCtr(containerId);
     }

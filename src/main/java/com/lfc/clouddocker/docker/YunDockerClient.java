@@ -44,8 +44,6 @@ public class YunDockerClient {
                 log.info("下载镜像：" + image);
                 super.onNext(item);
             }
-
-
         };
         pullImageCmd.exec(pullImageResultCallback).awaitCompletion();
 

@@ -5,14 +5,17 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Date;
 
 /**
  * 镜像
+ *
  * @TableName yun_image
  */
-@TableName(value ="yun_image")
+@TableName(value = "yun_image")
+@Accessors(chain = true)
 @Data
 public class YunImage {
     /**

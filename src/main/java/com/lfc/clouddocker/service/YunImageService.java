@@ -10,4 +10,7 @@ import com.lfc.clouddocker.model.entity.YunImage;
 */
 public interface YunImageService extends IService<YunImage> {
 
+    void pull(String image, Long userId) throws InterruptedException;
+
+    void removeImage(Long id, Long id1);
 }
