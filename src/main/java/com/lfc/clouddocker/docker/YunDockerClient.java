@@ -57,6 +57,26 @@ public class YunDockerClient {
         return true;
     }
 
+    /*-----------------------------上面为镜像，下面为容器------------------------------------*/
+
+    public String runCtr(String imageId, Integer hostPort, Integer containerPort, String name) {
+
+        //限制内存256M
+        hostConfig.withMemory(256 * 1024 * 1024L);
+
+        CreateContainerCmd containerCmd = defaultClient.createContainerCmd(imageId);
+        if (containerPort != null && containerPort != 0) {
+            String bindPort = Integer.toString(hostPort) + ":" + Integer.toString(containerPort);
+            containerCmd.withExposedPorts(ExposedPort.tcp(containerPort))
+                    .withPortBindings(PortBinding.parse(bindPort));
+        }
+
+        containerCmd.withName(name);
+
+        CreateContainerResponse createContainerResponse = containerCmd.withHostConfig(hostConfig).exec();
+        return createContainerResponse.getId();
+    }
+
     /**
      * 创建容器时，容器挂载目录
      *
@@ -82,6 +102,29 @@ public class YunDockerClient {
         //获取到容器id，也就是cid
 
         return containerResponse.getId();
+    }
+
+    public void createCmd(String cid) {
+
+        // docker exec keen_blackwell java -cp /app Main 1 3
+        String[] cmdArray = new String[]{"java", "-cp", "/app", "Main", "1", "3"};
+        ExecCreateCmdResponse execCreateCmdResponse = defaultClient.execCreateCmd(cid)
+                .withCmd(cmdArray)
+                .withAttachStderr(true)
+                .withAttachStdin(true)
+                .withAttachStdout(true)
+                .exec();
+        String execId = execCreateCmdResponse.getId();
+        if (execId != null) {
+            ExecStartResultCallback execStartResultCallback = new ExecStartResultCallback() {
+                @Override
+                public void onComplete() {
+                    //将信息返回给前端
+                    super.onComplete();
+                }
+            };
+            defaultClient.execStartCmd(execId).exec(execStartResultCallback);
+        }
     }
 
 
@@ -113,7 +156,7 @@ public class YunDockerClient {
             @Override
             public void onNext(Statistics statistics) {
                 // todo 这里要改成websocket向前端传输
-                System.out.println(statistics.getMemoryStats().getUsage());
+                log.info(String.valueOf(statistics.getMemoryStats().getUsage()));
                 maxMemory[0] = Math.max(statistics.getMemoryStats().getUsage(), maxMemory[0]);
             }
 
@@ -148,29 +191,6 @@ public class YunDockerClient {
         }
     }
 
-    public void createCmd(String cid) {
-
-
-        // docker exec keen_blackwell java -cp /app Main 1 3
-        String[] cmdArray = new String[]{"java", "-cp", "/app", "Main", "1", "3"};
-        ExecCreateCmdResponse execCreateCmdResponse = defaultClient.execCreateCmd(cid)
-                .withCmd(cmdArray)
-                .withAttachStderr(true)
-                .withAttachStdin(true)
-                .withAttachStdout(true)
-                .exec();
-        String execId = execCreateCmdResponse.getId();
-        if (execId != null) {
-            ExecStartResultCallback execStartResultCallback = new ExecStartResultCallback() {
-                @Override
-                public void onComplete() {
-                    //将信息返回给前端
-                    super.onComplete();
-                }
-            };
-            defaultClient.execStartCmd(execId).exec(execStartResultCallback);
-        }
-    }
 
     /**
      * 查看所有容器
@@ -195,6 +215,11 @@ public class YunDockerClient {
      */
     public boolean startCtr(String cid) {
         defaultClient.startContainerCmd(cid).exec();
+        return true;
+    }
+
+    public boolean stopCtr(String cid) {
+        defaultClient.stopContainerCmd(cid).exec();
         return true;
     }
 
@@ -231,4 +256,14 @@ public class YunDockerClient {
         return true;
     }
 
+    /**
+     * 重启容器
+     *
+     * @param containerId
+     * @return
+     */
+    public boolean restartCtr(String containerId) {
+        defaultClient.restartContainerCmd(containerId).exec();
+        return true;
+    }
 }

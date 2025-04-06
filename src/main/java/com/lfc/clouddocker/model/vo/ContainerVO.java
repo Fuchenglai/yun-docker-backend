@@ -1,12 +1,12 @@
-package com.lfc.clouddocker.model.entity;
+package com.lfc.clouddocker.model.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.lfc.clouddocker.model.entity.YunContainer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.beans.BeanUtils;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -16,25 +16,9 @@ import java.util.Date;
  */
 
 @Data
-@TableName("yun_container")
 @Accessors(chain = true)
 @EqualsAndHashCode(callSuper = false)
-public class YunContainer {
-    /**
-     * 主键
-     */
-    @TableId(type = IdType.AUTO)
-    private String id;
-
-    /**
-     * 镜像 id（主键）
-     */
-    private Long imageId;
-
-    /**
-     * 创建用户 id
-     */
-    private Long userId;
+public class ContainerVO implements Serializable {
 
     /**
      * 容器 id
@@ -61,10 +45,9 @@ public class YunContainer {
     private String ports;
 
     /**
-     * 容器名称 用户在启动容器时自定义的名称
+     * 容器名称
      */
     private String containerName;
-
 
     /**
      * 创建时间
@@ -72,7 +55,23 @@ public class YunContainer {
     private Date createTime;
 
     /**
-     * 更新时间
+     * repository:tag
      */
-    private Date updateTime;
+    private String image;
+
+    /**
+     * 对象转包装类
+     *
+     * @param container
+     * @return
+     */
+    public static ContainerVO objToVo(YunContainer container) {
+        if (container == null) {
+            return null;
+        }
+        ContainerVO containerVO = new ContainerVO();
+        BeanUtils.copyProperties(container, containerVO);
+
+        return containerVO;
+    }
 }

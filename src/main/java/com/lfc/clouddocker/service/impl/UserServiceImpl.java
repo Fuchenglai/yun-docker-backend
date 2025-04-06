@@ -264,4 +264,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 sortField);
         return queryWrapper;
     }
+
+    @Override
+    public boolean hasBalance(Long userId) {
+        User user = getById(userId);
+        return user.getBalance() > 300;
+
+    }
 }
