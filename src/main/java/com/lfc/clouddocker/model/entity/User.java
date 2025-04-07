@@ -42,6 +42,12 @@ public class User implements Serializable {
      */
     private String userAvatar;
 
+
+    /**
+     * 用户手机号
+     */
+    private String phone;
+
     /**
      * 余额
      */

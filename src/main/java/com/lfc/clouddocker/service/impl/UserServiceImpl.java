@@ -13,6 +13,7 @@ import com.lfc.clouddocker.model.enums.UserRoleEnum;
 import com.lfc.clouddocker.model.vo.LoginUserVO;
 import com.lfc.clouddocker.model.vo.UserVO;
 import com.lfc.clouddocker.service.UserService;
+import com.lfc.clouddocker.util.RandomNameUtil;
 import com.lfc.clouddocker.util.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("userAccount", userAccount);
             long count = this.baseMapper.selectCount(queryWrapper);
+
+            // 随机生成用户名
+            String randomName = RandomNameUtil.generateRandomName();
+
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
@@ -73,6 +78,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             User user = new User();
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
+            user.setUserName(randomName);
             boolean saveResult = this.save(user);
             if (!saveResult) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");

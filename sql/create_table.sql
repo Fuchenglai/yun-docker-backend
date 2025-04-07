@@ -12,10 +12,11 @@ use yun_docker;
 create table if not exists user
 (
     id            bigint auto_increment comment 'id' primary key,
-    user_account  varchar(256)                           not null comment '账号',
+    user_account  varchar(50)                            not null comment '账号',
     user_password varchar(512)                           not null comment '密码',
-    user_name     varchar(256)                           null comment '用户昵称',
-    user_avatar   varchar(1024)                          null comment '用户头像',
+    user_name     varchar(50)                            null comment '用户昵称',
+    user_avatar   varchar(512)                           null comment '用户头像url',
+    phone         varchar(20)                            null comment '用户手机号',
     balance       int          default 1000              not null comment '余额',
     user_role     varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
     create_time   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
@@ -47,8 +48,8 @@ create table if not exists yun_container
     user_id        bigint                             not null comment '创建用户 id',
     container_id   varchar(256)                       not null comment '容器 id',
     command        varchar(256)                       null comment '命令',
-    status         varchar(256)                       null comment '状态',
-    ports          varchar(256)                       null comment '端口',
+    status         varchar(20)                       null comment '状态',
+    ports          varchar(64)                       null comment '端口',
     container_name varchar(256)                       null comment '容器名称',
     create_time    datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
@@ -64,4 +65,9 @@ create table if not exists yun_port
     create_time datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 ) comment '端口' collate = utf8mb4_unicode_ci;
+
+ALTER TABLE `user`
+    ADD COLUMN `phone` VARCHAR(20)  NULL COMMENT '手机号码';
+
+
 
