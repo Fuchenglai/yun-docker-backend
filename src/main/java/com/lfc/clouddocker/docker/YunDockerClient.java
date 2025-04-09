@@ -1,18 +1,24 @@
 package com.lfc.clouddocker.docker;
 
+import cn.hutool.core.util.NumberUtil;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
+import com.github.dockerjava.core.InvocationBuilder;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
+import com.lfc.clouddocker.common.ErrorCode;
+import com.lfc.clouddocker.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author: 赖富城
@@ -23,15 +29,19 @@ import java.util.List;
 @Component
 public class YunDockerClient {
 
-    @Resource(name = "defaultClient")
+    @Autowired
     private DockerClient defaultClient;
 
-    @Resource(name = "hostConfig")
+    @Autowired
     private HostConfig hostConfig;
 
-    private StatsCmd statsCmd;
+    private static HashMap<Long, ResultCallback<Statistics>> STATS_CMD_MAP;
 
-    public boolean pullImage(String image) throws InterruptedException {
+    static {
+        STATS_CMD_MAP = new HashMap<>();
+    }
+
+    public InspectImageResponse pullImage(String image) throws InterruptedException {
         PullImageCmd pullImageCmd = defaultClient.pullImageCmd(image);
         PullImageResultCallback pullImageResultCallback = new PullImageResultCallback() {
             @Override
@@ -47,7 +57,9 @@ public class YunDockerClient {
         };
         pullImageCmd.exec(pullImageResultCallback).awaitCompletion();
 
-        return true;
+        //获取镜像的详细信息
+        InspectImageResponse imageResponse = defaultClient.inspectImageCmd(image).exec();
+        return imageResponse;
     }
 
     public boolean removeImage(String image) {
@@ -59,20 +71,28 @@ public class YunDockerClient {
 
     public String runCtr(String imageId, Integer hostPort, Integer containerPort, String name) {
 
-        //限制内存256M
-        hostConfig.withMemory(256 * 1024 * 1024L);
 
         CreateContainerCmd containerCmd = defaultClient.createContainerCmd(imageId);
-        if (containerPort != null && containerPort != 0) {
-            String bindPort = Integer.toString(hostPort) + ":" + Integer.toString(containerPort);
-            containerCmd.withExposedPorts(ExposedPort.tcp(containerPort))
+        /*if (containerPort != null && containerPort != 0) {
+            String bindPort = hostPort + ":" + containerPort;
+            log.info("绑定端口：{}", bindPort);
+            log.info("镜像为：{}", imageId);
+            containerCmd.withNetworkDisabled(false)
+                    .withExposedPorts(ExposedPort.tcp(containerPort))
                     .withPortBindings(PortBinding.parse(bindPort));
-        }
-
+        }*/
         containerCmd.withName(name);
-
+        // 限制内存256M
+        hostConfig.withMemory(512 * 1024 * 1024L);
+        PortBinding portBinding = new PortBinding(Ports.Binding.bindPort(hostPort), ExposedPort.tcp(containerPort));
+        log.info("绑定端口：{}", portBinding);
+        hostConfig.withPortBindings(portBinding);
         CreateContainerResponse createContainerResponse = containerCmd.withHostConfig(hostConfig).exec();
-        return createContainerResponse.getId();
+
+        //创建完之后，启动容器
+        String id = createContainerResponse.getId();
+        defaultClient.startContainerCmd(id).exec();
+        return id;
     }
 
     /**
@@ -143,24 +163,29 @@ public class YunDockerClient {
     final long[] maxMemory = {0L};
 
     /**
-     * 读取占用内存
+     * 读取容器的统计数据
      *
      * @param cid
      */
-    public void getFootprint(String cid) {
+    public void readCtrStats(String cid, Long userId) {
         StatsCmd statsCmd = defaultClient.statsCmd(cid);
         ResultCallback<Statistics> statisticsResultCallback = statsCmd.exec(new ResultCallback<Statistics>() {
 
             @Override
             public void onNext(Statistics statistics) {
                 // todo 这里要改成websocket向前端传输
-                log.info(String.valueOf(statistics.getMemoryStats().getUsage()));
+                log.info("统计信息：内存：{}", statistics.getMemoryStats().toString());
+                log.info("统计信息：CPU：{}", statistics.getCpuStats().toString());
+                log.info("统计信息：CPU：{}", Objects.requireNonNull(statistics.getNetworks()).toString());
+
+                //log.info(String.valueOf(statistics.getMemoryStats().getUsage()));
                 maxMemory[0] = Math.max(statistics.getMemoryStats().getUsage(), maxMemory[0]);
             }
 
             @Override
             public void onError(Throwable throwable) {
                 // todo 报错信息需要返回给用户
+                log.error("读取容器统计数据出错：{}", throwable.getMessage());
             }
 
             @Override
@@ -180,15 +205,37 @@ public class YunDockerClient {
         });
 
         statsCmd.exec(statisticsResultCallback);
-        this.statsCmd = statsCmd;
+        STATS_CMD_MAP.put(userId, statisticsResultCallback);
     }
 
-    public void closeStatsCmd() {
-        if (this.statsCmd != null) {
-            statsCmd.close();
+    public void closeStatsCmd(Long userId) {
+        ResultCallback<Statistics> resultCallback = STATS_CMD_MAP.get(userId);
+        if (resultCallback != null) {
+            try {
+                resultCallback.close();
+            } catch (IOException e) {
+                throw new BusinessException(ErrorCode.DOCKER_ERROR, e.getMessage());
+            }
         }
+        STATS_CMD_MAP.remove(userId);
     }
 
+    /**
+     * 获取容器占用的内存
+     *
+     * @param cid
+     * @return
+     */
+    public double getCtrMemory(String cid) {
+        Statistics containerStats = defaultClient.statsCmd(cid).exec(new InvocationBuilder.AsyncResultCallback<>()).awaitResult();
+        long memoryUsageInBytes = 0;
+        if (containerStats != null && containerStats.getMemoryStats() != null) {
+            memoryUsageInBytes = containerStats.getMemoryStats().getUsage();
+        }
+        // 将字节数转换为 MB
+        double memory = NumberUtil.div(memoryUsageInBytes, 1024.0 * 1024.0, 1);  //小数点后一位
+        return memory;
+    }
 
     /**
      * 查看所有容器

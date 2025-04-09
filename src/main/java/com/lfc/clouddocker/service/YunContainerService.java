@@ -2,6 +2,7 @@ package com.lfc.clouddocker.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lfc.clouddocker.common.BaseResponse;
 import com.lfc.clouddocker.model.dto.CtrRunRequest;
 import com.lfc.clouddocker.model.entity.User;
 import com.lfc.clouddocker.model.entity.YunContainer;
@@ -27,4 +28,6 @@ public interface YunContainerService extends IService<YunContainer> {
     boolean restart(String containerId, Long id);
 
     boolean remove(String containerId, Long userId);
+
+    BaseResponse<?> readStats(String containerId, Long userId);
 }

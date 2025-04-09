@@ -104,7 +104,7 @@ public class ImageController {
         //构造分页请求
         Page<YunImage> page = new Page<>(current, size);
         QueryWrapper<YunImage> queryWrapper = new QueryWrapper<YunImage>()
-                .eq("user_id", loginUser.getId());
+                .eq("user_id", loginUser.getId()).or().eq("image_type", 0);
 
         Page<YunImage> yunImagePage = yunImageService.page(page, queryWrapper);
 

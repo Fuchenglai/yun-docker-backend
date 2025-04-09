@@ -1,10 +1,13 @@
 package com.lfc.clouddocker.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lfc.clouddocker.common.BaseResponse;
 import com.lfc.clouddocker.common.ErrorCode;
+import com.lfc.clouddocker.common.ResultUtils;
 import com.lfc.clouddocker.constant.CtrStatusConstant;
 import com.lfc.clouddocker.docker.YunDockerClient;
 import com.lfc.clouddocker.exception.BusinessException;
@@ -19,15 +22,12 @@ import com.lfc.clouddocker.model.vo.ContainerVO;
 import com.lfc.clouddocker.service.YunContainerService;
 import com.lfc.clouddocker.service.YunImageService;
 import com.lfc.clouddocker.util.PortManageUtil;
-import org.apache.commons.collections.CollectionUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
  * @Profile:
  */
 @Service
+@Slf4j
 public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, YunContainer> implements YunContainerService {
 
     @Resource
@@ -65,7 +66,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
     public Page<ContainerVO> getContainerVOPage(Page<YunContainer> containerPage) {
         List<YunContainer> containers = containerPage.getRecords();
         Page<ContainerVO> containerVOPage = new Page<>(containerPage.getCurrent(), containerPage.getSize(), containerPage.getTotal());
-        if (CollectionUtils.isEmpty(containers)) {
+        if (containers == null || containers.isEmpty()) {
             return containerVOPage;
         }
 
@@ -119,14 +120,16 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         String imageId = ctrRunRequest.getImageId();
         Long userId = loginUser.getId();
 
-        //根据imageId在数据库查询镜像
-        QueryWrapper<YunImage> queryWrapper = new QueryWrapper<YunImage>()
-                .eq("image_id", imageId);
+        //根据id（主键）在数据库查询镜像
+        QueryWrapper<YunImage> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("image_id", imageId);
         YunImage yunImage = yunImageMapper.selectOne(queryWrapper);
+
         if (yunImage == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        if (yunImage.getUserId() != userId && yunImage.getImageType() != 0) {
+        log.info("yunImage:{}", yunImage);
+        if (!Objects.equals(yunImage.getUserId(), userId) && yunImage.getImageType() != 0) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
 
@@ -135,6 +138,8 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         //确认端口是否合法
         Integer hostPort = ctrRunRequest.getHostPort();
         Integer containerPort = ctrRunRequest.getContainerPort();
+
+        //如果是公共的镜像，则使用Map里面规定好的端口号，否则生成随机端口号
         if (yunImage.getImageType() == 0) {
             hostPort = PortManageUtil.getPublicHostPort(repository);
             containerPort = PortManageUtil.getPublicContainerPort(repository);
@@ -147,11 +152,16 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         //检查name是否存在
         String name = ctrRunRequest.getName();
         if (name == null || name.isEmpty()) {
-            name = repository + UUID.randomUUID().toString().substring(0, 5);
+            name = repository + "_" + UUID.randomUUID().toString().substring(0, 5);
         }
 
+        //String image = repository + ":" + yunImage.getTag();
+        String image = yunImage.getImageId();
+
+        log.info("发送run命令之前的主机端口号：{}，容器端口号：{}", hostPort, containerPort);
+
         //向docker发送run命令
-        String ctrId = dockerClient.runCtr(imageId, hostPort, containerPort, name);
+        String ctrId = dockerClient.runCtr(image, hostPort, containerPort, name);
 
         //将容器信息保存到数据库
         YunContainer yunContainer = new YunContainer().setImageId(yunImage.getId())
@@ -197,12 +207,25 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
                 .setSql("balance = balance + 300");  // 直接使用 SQL 表达式保证原子性
         userMapper.update(null, updateWrapper);
 
-        remove(containerId, userId);
+        Wrapper<YunContainer> queryWrapper = new QueryWrapper<YunContainer>()
+                .eq("container_id", containerId)
+                .eq("user_id", userId);
+        yunContainerMapper.delete(queryWrapper);
 
         //向docker发送remove命令
         return dockerClient.removeCtr(containerId);
     }
 
+    @Override
+    public BaseResponse<?> readStats(String containerId, Long userId) {
+        YunContainer yunContainer = isCtr2User(containerId, userId);
+        if (yunContainer == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        dockerClient.readCtrStats(containerId,userId);
+
+        return ResultUtils.success("操作成功！");
+    }
 
     /**
      * 判断容器是否属于用户

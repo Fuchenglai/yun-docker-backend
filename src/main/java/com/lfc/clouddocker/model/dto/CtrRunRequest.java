@@ -13,7 +13,7 @@ import java.io.Serializable;
 public class CtrRunRequest implements Serializable {
 
     /**
-     * 镜像id，不是镜像的主键，主键都是Long类型的
+     * 镜像id,不是镜像的主键，主键都是Long类型的
      */
     private String imageId;
 

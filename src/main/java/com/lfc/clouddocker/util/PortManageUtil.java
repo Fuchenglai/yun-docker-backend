@@ -19,6 +19,7 @@ public class PortManageUtil {
         PUBLIC_IMAGE_PORT_MAP.put("kafka", 9092);
         PUBLIC_IMAGE_PORT_MAP.put("zookeeper", 2181);
         PUBLIC_IMAGE_PORT_MAP.put("nginx", 80);
+        PUBLIC_IMAGE_PORT_MAP.put("yun-docker-demo", 8080);
     }
 
     public static boolean delOccupyPort(Integer port) {

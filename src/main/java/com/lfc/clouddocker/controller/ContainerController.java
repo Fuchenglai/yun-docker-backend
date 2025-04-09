@@ -6,6 +6,7 @@ import com.lfc.clouddocker.common.BaseResponse;
 import com.lfc.clouddocker.common.ErrorCode;
 import com.lfc.clouddocker.common.PageRequest;
 import com.lfc.clouddocker.common.ResultUtils;
+import com.lfc.clouddocker.docker.YunDockerClient;
 import com.lfc.clouddocker.exception.BusinessException;
 import com.lfc.clouddocker.exception.ThrowUtils;
 import com.lfc.clouddocker.model.dto.CtrRunRequest;
@@ -31,11 +32,14 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("container")
 public class ContainerController {
 
-    @Autowired
+    @Resource
     private YunContainerService yunContainerService;
 
     @Resource
     private UserService userService;
+
+    @Autowired
+    private YunDockerClient yunDockerClient;
 
 
     /**
@@ -149,6 +153,37 @@ public class ContainerController {
         final User loginUser = userService.getLoginUser(request);
         return yunContainerService.remove(containerId, loginUser.getId()) ?
                 ResultUtils.success("操作成功！") : ResultUtils.error(ErrorCode.SYSTEM_ERROR, "操作失败！");
+    }
+
+    /**
+     * 读取一个容器的统计信息
+     *
+     * @param containerId
+     * @param request
+     * @return
+     */
+    @GetMapping("/readStats")
+    public BaseResponse<?> readStats(@RequestParam String containerId, HttpServletRequest request) {
+        if (containerId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        // 登录才能操作
+        final User loginUser = userService.getLoginUser(request);
+        return yunContainerService.readStats(containerId, loginUser.getId());
+    }
+
+    @GetMapping("/closeStats")
+    public BaseResponse<?> closeStats(@RequestParam String containerId, HttpServletRequest request) {
+        if (containerId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+
+        User loginUser = userService.getLoginUser(request);
+
+        yunDockerClient.closeStatsCmd(loginUser.getId());
+
+        return ResultUtils.success("操作成功！");
     }
 
 

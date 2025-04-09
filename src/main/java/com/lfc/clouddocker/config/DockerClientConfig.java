@@ -16,7 +16,7 @@ public class DockerClientConfig {
 
     @Bean
     public DockerClient defaultClient() {
-        return DockerClientBuilder.getInstance().build();
+        return DockerClientBuilder.getInstance("tcp://114.215.205.22:2375").build();
     }
 
     @Bean

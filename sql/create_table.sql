@@ -66,8 +66,6 @@ create table if not exists yun_port
     update_time datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 ) comment '端口' collate = utf8mb4_unicode_ci;
 
-ALTER TABLE `user`
-    ADD COLUMN `phone` VARCHAR(20)  NULL COMMENT '手机号码';
 
 
 
