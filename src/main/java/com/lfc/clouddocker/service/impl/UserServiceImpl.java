@@ -1,6 +1,7 @@
 package com.lfc.clouddocker.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lfc.clouddocker.common.ErrorCode;
@@ -85,6 +86,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
             return user.getId();
         }
+    }
+
+    @Override
+    public void updateBalance(Double cost, Long userId) {
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<User>();
+        String sql = "balance = balance";
+        if (cost > 0) {
+            sql = sql + "+" + Math.toIntExact(Math.round(cost));
+        } else if (cost < 0) {
+            sql = sql + "-" + Math.toIntExact(Math.round(Math.abs(cost)));
+        }
+        updateWrapper
+                .eq("id", userId)  // WHERE id = #{userId}
+                .setSql(sql);  // 直接使用 SQL 表达式保证原子性
+        this.baseMapper.update(null, updateWrapper);
     }
 
     @Override

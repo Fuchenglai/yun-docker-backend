@@ -42,7 +42,7 @@ public class YunImage {
     /**
      * 镜像大小
      */
-    private Integer imageSize;
+    private Double imageSize;
 
     /**
      * 镜像类型：0-public,1-private
@@ -53,6 +53,11 @@ public class YunImage {
      * 创建用户 id
      */
     private Long userId;
+
+    /**
+     * 对外暴露的端口号
+     */
+    private int port;
 
     /**
      * 创建时间

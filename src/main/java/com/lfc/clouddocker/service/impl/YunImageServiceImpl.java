@@ -4,11 +4,14 @@ import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.model.ContainerConfig;
+import com.github.dockerjava.api.model.ExposedPort;
 import com.lfc.clouddocker.common.ErrorCode;
 import com.lfc.clouddocker.docker.YunDockerClient;
 import com.lfc.clouddocker.exception.BusinessException;
 import com.lfc.clouddocker.mapper.YunImageMapper;
 import com.lfc.clouddocker.model.entity.YunImage;
+import com.lfc.clouddocker.service.UserService;
 import com.lfc.clouddocker.service.YunImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,24 +33,51 @@ public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
     @Resource
     private YunImageMapper yunImageMapper;
 
+    @Resource
+    private UserService userService;
+
     @Override
     public void pull(String image, Long userId) throws InterruptedException {
 
+        String[] strings = image.split(":");
+
+        //如果这个镜像之前拉取过，那就不用再拉取了
+        QueryWrapper<YunImage> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("repository", strings[0])
+                .eq("tag", strings[1]);
+        YunImage selectedImage = this.baseMapper.selectOne(queryWrapper);
+        if (selectedImage != null) {
+            if (selectedImage.getImageType() != 0) {
+                selectedImage.setUserId(userId);
+                save(selectedImage);
+            }
+            return;
+        }
+
         //向docker发送pull命令
         InspectImageResponse imageResponse = yunDockerClient.pullImage(image);
+        ContainerConfig config = imageResponse.getConfig();
+        int port = 0;
+        if (config != null) {
+            ExposedPort[] exposedPorts = config.getExposedPorts();
+            if (exposedPorts != null && exposedPorts.length > 0) {
+                port = exposedPorts[0].getPort();
+            }
+        }
 
         // 原格式：sha256:cc44224bfe208a46fbc45471e8f9416f66b75d6307573e29634e7f42e27a9268
         String imageId = imageResponse.getId().split(":")[1];
 
         // 原格式：23456409 B
         double memory = NumberUtil.div((long) imageResponse.getSize(), 1000 * 1000, 1);
-        int size = Math.toIntExact((long) memory);
+
+        //扣减余额
+        userService.updateBalance(-memory, userId);
 
         //数据库存入一个镜像
-        String[] strings = image.split(":");
         YunImage yunImage = new YunImage().setUserId(userId).
                 setImageType(1).setRepository(strings[0]).setTag(strings[1]).
-                setImageId(imageId).setImageSize(size);
+                setImageId(imageId).setImageSize(memory).setPort(port);
 
         save(yunImage);
     }
@@ -62,6 +92,9 @@ public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
         //向docker发送rmi命令
         String image = yunImage.getRepository() + ":" + yunImage.getTag();
         yunDockerClient.removeImage(image);
+
+        //增加用户余额
+        userService.updateBalance(yunImage.getImageSize(), userId);
 
         //删除数据库中的镜像
         removeById(id);

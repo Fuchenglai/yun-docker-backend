@@ -120,4 +120,6 @@ public interface UserService extends IService<User> {
 
 
     boolean hasBalance(Long userId);
+
+    void updateBalance(Double cost,Long userId);
 }

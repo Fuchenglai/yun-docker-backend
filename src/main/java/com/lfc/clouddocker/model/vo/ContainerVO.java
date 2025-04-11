@@ -45,6 +45,11 @@ public class ContainerVO implements Serializable {
     private String ports;
 
     /**
+     * 容器 ip
+     */
+    private String ip;
+
+    /**
      * 容器名称
      */
     private String containerName;

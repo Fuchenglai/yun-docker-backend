@@ -2,7 +2,6 @@ package com.lfc.clouddocker.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lfc.clouddocker.common.BaseResponse;
@@ -11,7 +10,6 @@ import com.lfc.clouddocker.common.ResultUtils;
 import com.lfc.clouddocker.constant.CtrStatusConstant;
 import com.lfc.clouddocker.docker.YunDockerClient;
 import com.lfc.clouddocker.exception.BusinessException;
-import com.lfc.clouddocker.mapper.UserMapper;
 import com.lfc.clouddocker.mapper.YunContainerMapper;
 import com.lfc.clouddocker.mapper.YunImageMapper;
 import com.lfc.clouddocker.model.dto.CtrRunRequest;
@@ -19,6 +17,7 @@ import com.lfc.clouddocker.model.entity.User;
 import com.lfc.clouddocker.model.entity.YunContainer;
 import com.lfc.clouddocker.model.entity.YunImage;
 import com.lfc.clouddocker.model.vo.ContainerVO;
+import com.lfc.clouddocker.service.UserService;
 import com.lfc.clouddocker.service.YunContainerService;
 import com.lfc.clouddocker.service.YunImageService;
 import com.lfc.clouddocker.util.PortManageUtil;
@@ -27,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.net.InetAddress;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,7 +52,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
     private YunDockerClient dockerClient;
 
     @Resource
-    private UserMapper userMapper;
+    private UserService userService;
 
     @Override
     public List<YunContainer> queryByUserId(String userId) {
@@ -73,12 +73,22 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         Set<Long> imageIdSet = containers.stream().map(YunContainer::getImageId).collect(Collectors.toSet());
         Map<Long, List<YunImage>> imageId2YunImageListMap = yunImageService.listByIds(imageIdSet).stream().collect(Collectors.groupingBy(YunImage::getId));
 
+        String ip = "0.0.0.0";
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            ip = localHost.getHostAddress();
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.DOCKER_ERROR, e.getMessage());
+        }
+
         //填充信息
+        String finalIp = ip;
         List<ContainerVO> containerVOList = containers.stream().map(container -> {
             ContainerVO containerVO = ContainerVO.objToVo(container);
             String image = imageId2YunImageListMap.get(container.getImageId()).get(0).getRepository() + ":"
                     + imageId2YunImageListMap.get(container.getImageId()).get(0).getTag();
             containerVO.setImage(image);
+            containerVO.setIp(finalIp);
             return containerVO;
         }).collect(Collectors.toList());
 
@@ -174,11 +184,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         save(yunContainer);
 
         //扣减用户余额
-        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper
-                .eq("id", userId)  // WHERE id = #{userId}
-                .setSql("balance = balance - 300");  // 直接使用 SQL 表达式保证原子性
-        userMapper.update(null, updateWrapper);
+        userService.updateBalance(-300.0, userId);
     }
 
     @Override
@@ -201,11 +207,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         }
 
         //增加用户余额
-        UpdateWrapper<User> updateWrapper = new UpdateWrapper<User>();
-        updateWrapper
-                .eq("id", userId)  // WHERE id = #{userId}
-                .setSql("balance = balance + 300");  // 直接使用 SQL 表达式保证原子性
-        userMapper.update(null, updateWrapper);
+        userService.updateBalance(300.0, userId);
 
         Wrapper<YunContainer> queryWrapper = new QueryWrapper<YunContainer>()
                 .eq("container_id", containerId)
@@ -222,7 +224,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         if (yunContainer == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        dockerClient.readCtrStats(containerId,userId);
+        dockerClient.readCtrStats(containerId, userId);
 
         return ResultUtils.success("操作成功！");
     }
