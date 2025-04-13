@@ -58,7 +58,7 @@ public class MyDockerExample {
     public static void main(String[] args) throws InterruptedException, IOException {
         System.out.println("开始了");
         DefaultDockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost("tcp://114.215.205.22:2375")
+                .withDockerHost("tcp://47.111.108.204:2375")
                 .withApiVersion("1.41")
                 .build();
 
@@ -99,13 +99,18 @@ public class MyDockerExample {
 
         System.out.println("内存使用量：" + memory);*/
 
-        StatsCmd statsCmd = dockerClient.statsCmd("61e2f27190d9");
+        StatsCmd statsCmd = dockerClient.statsCmd("620ea5bf4cbd");
+
         ResultCallback<Statistics> statisticsResultCallback = statsCmd.exec(new ResultCallback<Statistics>() {
+            private boolean again = true;
 
             @Override
             public void onNext(Statistics statistics) {
-                // todo 这里要改成websocket向前端传输
-                System.out.println("统计信息：" + statistics.toString());
+                if (again) {
+                    // todo 这里要改成websocket向前端传输
+                    System.out.println("统计信息：" + statistics.toString());
+                }
+
             }
 
             @Override
@@ -125,14 +130,31 @@ public class MyDockerExample {
 
             @Override
             public void close() throws IOException {
+                System.out.println("关闭了");
+                again = false;
             }
         });
-        Thread.sleep(50000);
+
+        Thread.sleep(5000);
 
         // 有bug，不能正常关闭
-        System.out.println("休眠结束，下面开始关闭stats");
-        statisticsResultCallback.close();
-        Thread.sleep(10000);
+        System.out.println("休眠结束，下面开始关闭stats和statsCmd");
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        /*statisticsResultCallback.close();
+        statsCmd.close();
+        // httpClient.close();
+        dockerClient.close();
+
+        dockerClient.pingCmd().exec();*/
+
+
+        dockerClient.stopContainerCmd("620ea5bf4cbd").exec();
+        Thread.sleep(1000);
+        dockerClient.restartContainerCmd("620ea5bf4cbd").exec();
+
+        Thread.sleep(8000);
         System.out.println("结束了");
     }
 

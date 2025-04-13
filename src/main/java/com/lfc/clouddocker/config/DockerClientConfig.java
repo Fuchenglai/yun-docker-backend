@@ -3,6 +3,7 @@ package com.lfc.clouddocker.config;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,9 +15,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DockerClientConfig {
 
+    @Value("${docker.client.url}")
+    private String dockerClientUrl;
+
     @Bean
     public DockerClient defaultClient() {
-        return DockerClientBuilder.getInstance("tcp://47.111.108.204:2375").build();
+        return DockerClientBuilder.getInstance(dockerClientUrl).build();
     }
 
     @Bean

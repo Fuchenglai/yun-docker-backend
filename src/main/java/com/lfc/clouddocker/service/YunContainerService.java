@@ -30,4 +30,6 @@ public interface YunContainerService extends IService<YunContainer> {
     boolean remove(String containerId, Long userId);
 
     BaseResponse<?> readStats(String containerId, Long userId);
+
+    YunContainer isCtr2User(String containerId, Long userId);
 }

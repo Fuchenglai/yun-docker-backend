@@ -1,6 +1,11 @@
 # 公共配置文件
 # @author <a href="https://github.com/liyupi">程序员鱼皮</a>
 # @from <a href="https://yupi.icu">编程导航知识星球</a>
+
+docker:
+  client:
+    url: tcp://47.111.108.204:2375
+
 spring:
   application:
     name: cloud-docker
@@ -47,7 +52,7 @@ server:
   address: 0.0.0.0
   port: 8088
   servlet:
-    context-path: /api
+    context-path: /api  # 应用名 + 路径
     # cookie 30 天过期
     session:
       cookie:

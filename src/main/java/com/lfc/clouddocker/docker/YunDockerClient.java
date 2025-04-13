@@ -1,6 +1,8 @@
 package com.lfc.clouddocker.docker;
 
 import cn.hutool.core.util.NumberUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.*;
@@ -10,6 +12,8 @@ import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.lfc.clouddocker.common.ErrorCode;
 import com.lfc.clouddocker.exception.BusinessException;
+import com.lfc.clouddocker.model.dto.message.CtrStatsResponseMessage;
+import com.lfc.clouddocker.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +38,9 @@ public class YunDockerClient {
 
     @Autowired
     private HostConfig hostConfig;
+
+    @Autowired
+    private ObjectMapper jacksonObjectMapper;
 
     private static HashMap<Long, ResultCallback<Statistics>> STATS_CMD_MAP;
 
@@ -160,7 +167,6 @@ public class YunDockerClient {
         return containerResponse.getId();
     }
 
-    final long[] maxMemory = {0L};
 
     /**
      * 读取容器的统计数据
@@ -171,15 +177,39 @@ public class YunDockerClient {
         StatsCmd statsCmd = defaultClient.statsCmd(cid);
         ResultCallback<Statistics> statisticsResultCallback = statsCmd.exec(new ResultCallback<Statistics>() {
 
+            private boolean stopStats = false;
+
             @Override
             public void onNext(Statistics statistics) {
-                // todo 这里要改成websocket向前端传输
-                log.info("统计信息：内存：{}", statistics.getMemoryStats().toString());
-                log.info("统计信息：CPU：{}", statistics.getCpuStats().toString());
-                log.info("统计信息：CPU：{}", Objects.requireNonNull(statistics.getNetworks()).toString());
+                if(stopStats) return;
 
-                //log.info(String.valueOf(statistics.getMemoryStats().getUsage()));
-                maxMemory[0] = Math.max(statistics.getMemoryStats().getUsage(), maxMemory[0]);
+                //封装传输对象
+                CtrStatsResponseMessage ctrStatsResponseMessage = new CtrStatsResponseMessage();
+                ctrStatsResponseMessage.setCpuTotalUsage(NumberUtil.div((long) statistics.getCpuStats().getCpuUsage().getTotalUsage(), 1000 * 1000, 1))
+                        .setPerCpuUsage(statistics.getCpuStats().getCpuUsage().getPercpuUsage())
+                        .setOnlineCpus(statistics.getCpuStats().getOnlineCpus())
+                        .setMemoryUsage(NumberUtil.div((long) statistics.getMemoryStats().getUsage(), 1024, 1))
+                        .setMemoryMaxUsage(NumberUtil.div((long) statistics.getMemoryStats().getMaxUsage(), 1024, 1))
+                        .setMemoryLimit(NumberUtil.div((long) statistics.getMemoryStats().getLimit(), 1024 * 1024, 1))
+                        .setNumProcess(statistics.getNumProcs());
+                long rxSum = Objects.requireNonNull(statistics.getNetworks()).values().stream().mapToLong(StatisticNetworksConfig::getRxBytes).sum();
+                long txSum = Objects.requireNonNull(statistics.getNetworks()).values().stream().mapToLong(StatisticNetworksConfig::getTxBytes).sum();
+                long ioSum = Objects.requireNonNull(statistics.getBlkioStats().getIoServiceBytesRecursive()).stream().mapToLong(BlkioStatEntry::getValue).sum();
+
+                ctrStatsResponseMessage.setRxBytes(NumberUtil.div(rxSum, 1000, 1))
+                        .setTxBytes(NumberUtil.div(txSum, 1000, 1))
+                        .setIoValue(NumberUtil.div(ioSum, 1000, 1));
+
+
+                // 使用websocket向前端传输
+                try {
+                    String mes = jacksonObjectMapper.writeValueAsString(ctrStatsResponseMessage);
+                    WebSocketServer.sendInfo(mes, userId);
+                } catch (JsonProcessingException e) {
+                    throw new BusinessException(ErrorCode.SYSTEM_ERROR, e.getMessage());
+                }
+
+                log.info("websocket传输对象信息：{}", ctrStatsResponseMessage.toString());
             }
 
             @Override
@@ -200,7 +230,7 @@ public class YunDockerClient {
 
             @Override
             public void close() throws IOException {
-
+                stopStats = true;
             }
         });
 
@@ -208,6 +238,12 @@ public class YunDockerClient {
         STATS_CMD_MAP.put(userId, statisticsResultCallback);
     }
 
+
+    /**
+     * 关闭监控统计命令
+     *
+     * @param userId
+     */
     public void closeStatsCmd(Long userId) {
         ResultCallback<Statistics> resultCallback = STATS_CMD_MAP.get(userId);
         if (resultCallback != null) {
@@ -308,6 +344,7 @@ public class YunDockerClient {
      * @return
      */
     public boolean restartCtr(String containerId) {
+        log.warn("重启容器：{}", containerId);
         defaultClient.restartContainerCmd(containerId).exec();
         return true;
     }

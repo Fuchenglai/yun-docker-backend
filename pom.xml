@@ -25,6 +25,12 @@
 
     <dependencies>
 
+        <!--        Websocket-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
         <dependency>
             <!-- docker-java -->
             <groupId>com.github.docker-java</groupId>
