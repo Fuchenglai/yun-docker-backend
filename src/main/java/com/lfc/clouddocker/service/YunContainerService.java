@@ -8,6 +8,7 @@ import com.lfc.clouddocker.model.entity.User;
 import com.lfc.clouddocker.model.entity.YunContainer;
 import com.lfc.clouddocker.model.vo.ContainerVO;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -32,4 +33,6 @@ public interface YunContainerService extends IService<YunContainer> {
     BaseResponse<?> readStats(String containerId, Long userId);
 
     YunContainer isCtr2User(String containerId, Long userId);
+
+    void logCtr(String containerId, Long userId, HttpServletResponse response);
 }

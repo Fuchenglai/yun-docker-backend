@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -151,7 +152,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
 
         //如果是公共的镜像，则使用Map里面规定好的端口号，否则生成随机端口号
         if (yunImage.getImageType() == 0) {
-            hostPort = PortManageUtil.getPublicHostPort(repository);
+            hostPort = PortManageUtil.generatePort();
             containerPort = PortManageUtil.getPublicContainerPort(repository);
         } else if (containerPort != null && containerPort != 0) {
             if (hostPort == null || !PortManageUtil.isValidPort(hostPort)) {
@@ -243,5 +244,13 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         return yunContainerMapper.selectOne(queryWrapper);
     }
 
+    @Override
+    public void logCtr(String containerId, Long userId, HttpServletResponse response) {
+        YunContainer yunContainer = isCtr2User(containerId, userId);
+        if (yunContainer == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
 
+        dockerClient.logCtr(containerId, response);
+    }
 }

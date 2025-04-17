@@ -1,16 +1,9 @@
 package com.lfc.clouddocker.docker;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.command.StatsCmd;
-import com.github.dockerjava.api.model.Statistics;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientImpl;
-import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
+import cn.hutool.core.io.FileUtil;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.time.Duration;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @Author: 赖富城
@@ -55,8 +48,7 @@ public class MyDockerExample {
 
     }*/
 
-    public static void main(String[] args) throws InterruptedException, IOException {
-        System.out.println("开始了");
+    /*public static void main(String[] args) throws InterruptedException, IOException {
         DefaultDockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
                 .withDockerHost("tcp://47.111.108.204:2375")
                 .withApiVersion("1.41")
@@ -73,23 +65,23 @@ public class MyDockerExample {
         //DockerClient dockerClient = DockerClientBuilder.getInstance("tcp://114.215.205.22:2375").build();
         //System.out.println("开始了");
 
-        /*CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd("52209645d450");
+        *//*CreateContainerCmd createContainerCmd = dockerClient.createContainerCmd("52209645d450");
         createContainerCmd.withExposedPorts(ExposedPort.tcp(8080))
                 .withNetworkDisabled(false)
                 .withPortBindings(PortBinding.parse("8080:8080"));
         CreateContainerResponse containerResponse = createContainerCmd.exec();
         System.out.println("结果：" + containerResponse.getRawValues().toString());
 
-        dockerClient.startContainerCmd(containerResponse.getId()).exec();*/
+        dockerClient.startContainerCmd(containerResponse.getId()).exec();*//*
 
 
         //dockerClient.removeContainerCmd("9e744ce44a4a").withForce(true).exec();
 
-        /*InspectImageResponse imageResponse = dockerClient.inspectImageCmd("nginx:alpine").exec();
+        *//*InspectImageResponse imageResponse = dockerClient.inspectImageCmd("nginx:alpine").exec();
         System.out.println(imageResponse.getId());
-        System.out.println(imageResponse.getSize());*/
+        System.out.println(imageResponse.getSize());*//*
 
-        /*Statistics containerStats = dockerClient.statsCmd("230a049f5f30").exec(new InvocationBuilder.AsyncResultCallback<>()).awaitResult();
+     *//*Statistics containerStats = dockerClient.statsCmd("230a049f5f30").exec(new InvocationBuilder.AsyncResultCallback<>()).awaitResult();
         long memoryUsageInBytes = 0;
         if (containerStats != null && containerStats.getMemoryStats() != null) {
             memoryUsageInBytes = containerStats.getMemoryStats().getUsage();
@@ -97,7 +89,7 @@ public class MyDockerExample {
         // 将字节数转换为 MB
         double memory = NumberUtil.div(memoryUsageInBytes, 1024.0 * 1024.0, 1);
 
-        System.out.println("内存使用量：" + memory);*/
+        System.out.println("内存使用量：" + memory);*//*
 
         StatsCmd statsCmd = dockerClient.statsCmd("620ea5bf4cbd");
 
@@ -142,12 +134,12 @@ public class MyDockerExample {
         System.out.println();
         System.out.println();
         System.out.println();
-        /*statisticsResultCallback.close();
+        *//*statisticsResultCallback.close();
         statsCmd.close();
         // httpClient.close();
         dockerClient.close();
 
-        dockerClient.pingCmd().exec();*/
+        dockerClient.pingCmd().exec();*//*
 
 
         dockerClient.stopContainerCmd("620ea5bf4cbd").exec();
@@ -156,6 +148,54 @@ public class MyDockerExample {
 
         Thread.sleep(8000);
         System.out.println("结束了");
+    }*/
+
+
+    private static final String GLOBAL_LOG_DIR_NAME = "tempLog";
+    private static final String GLOBAL_LOG_NAME = "log.txt";
+
+    public static void main(String[] args) throws InterruptedException {
+
+        String userDir = System.getProperty("user.dir");
+        String globalLogPathName = userDir + File.separator + GLOBAL_LOG_DIR_NAME;
+
+        //判断全局日志目录是否存在，不存在则创建
+        if (!FileUtil.exist(globalLogPathName)) {
+            FileUtil.mkdir(globalLogPathName);
+        }
+
+        String userLogPath = globalLogPathName + File.separator + GLOBAL_LOG_NAME;
+        FileUtil.writeString("", userLogPath, StandardCharsets.UTF_8);
+
+
+        /*DefaultDockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+                .withDockerHost("tcp://47.111.110.79:2375")
+                .withApiVersion("1.41")
+                .build();
+
+        ApacheDockerHttpClient httpClient = new ApacheDockerHttpClient
+                .Builder()
+                .dockerHost(config.getDockerHost())
+                .maxConnections(100)
+                .connectionTimeout(Duration.ofSeconds(30))
+                .responseTimeout(Duration.ofSeconds(45))
+                .build();
+        DockerClient dockerClient = DockerClientImpl.getInstance(config, httpClient);
+        LogContainerResultCallback callback = new LogContainerResultCallback() {
+            @Override
+            public void onNext(Frame item) {
+
+                // todo 使用websocket输出日志
+                System.out.println("日志：" + new String(item.getPayload()));
+                FileUtil.appendString(new String(item.getPayload()), userLogPath, StandardCharsets.UTF_8);
+                super.onNext(item);
+            }
+        };
+        dockerClient.logContainerCmd("500d96473b2f")
+                .withStdErr(true)
+                .withStdOut(true)
+                .exec(callback).awaitCompletion();
+    }*/
     }
 
 }

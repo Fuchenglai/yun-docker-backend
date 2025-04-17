@@ -26,13 +26,6 @@ public class PortManageUtil {
         return PORT_SET.remove(port);
     }
 
-    public static Integer getPublicHostPort(String publicImage) {
-        Integer i = PUBLIC_IMAGE_PORT_MAP.get(publicImage);
-        if (PORT_SET.add(i)) {
-            return i;
-        }
-        return generatePort();
-    }
 
     public static Integer getPublicContainerPort(String publicImage) {
         return PUBLIC_IMAGE_PORT_MAP.get(publicImage);

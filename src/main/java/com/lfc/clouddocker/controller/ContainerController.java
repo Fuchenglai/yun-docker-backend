@@ -6,7 +6,6 @@ import com.lfc.clouddocker.common.BaseResponse;
 import com.lfc.clouddocker.common.ErrorCode;
 import com.lfc.clouddocker.common.PageRequest;
 import com.lfc.clouddocker.common.ResultUtils;
-import com.lfc.clouddocker.docker.YunDockerClient;
 import com.lfc.clouddocker.exception.BusinessException;
 import com.lfc.clouddocker.exception.ThrowUtils;
 import com.lfc.clouddocker.model.dto.CtrRunRequest;
@@ -15,12 +14,12 @@ import com.lfc.clouddocker.model.entity.YunContainer;
 import com.lfc.clouddocker.model.vo.ContainerVO;
 import com.lfc.clouddocker.service.UserService;
 import com.lfc.clouddocker.service.YunContainerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @Author: 赖富城
@@ -37,9 +36,6 @@ public class ContainerController {
 
     @Resource
     private UserService userService;
-
-    @Autowired
-    private YunDockerClient yunDockerClient;
 
 
     /**
@@ -156,35 +152,21 @@ public class ContainerController {
     }
 
     /**
-     * 读取一个容器的统计信息
+     * 下载一个容器的日志文件
      *
      * @param containerId
      * @param request
-     * @return
+     * @param response
      */
-    @GetMapping("/readStats")
-    public BaseResponse<?> readStats(@RequestParam String containerId, HttpServletRequest request) {
+    @GetMapping("/downloadLog")
+    public void logCtr(@RequestParam String containerId, HttpServletRequest request, HttpServletResponse response) {
         if (containerId == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
 
         // 登录才能操作
         final User loginUser = userService.getLoginUser(request);
-        return yunContainerService.readStats(containerId, loginUser.getId());
+        yunContainerService.logCtr(containerId, loginUser.getId(), response);
     }
-
-    @GetMapping("/closeStats")
-    public BaseResponse<?> closeStats(@RequestParam String containerId, HttpServletRequest request) {
-        if (containerId == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-
-        User loginUser = userService.getLoginUser(request);
-
-        yunDockerClient.closeStatsCmd(loginUser.getId());
-
-        return ResultUtils.success("操作成功！");
-    }
-
 
 }

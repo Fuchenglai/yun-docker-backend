@@ -1,5 +1,6 @@
 package com.lfc.clouddocker.docker;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,8 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.Closeable;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -181,7 +184,7 @@ public class YunDockerClient {
 
             @Override
             public void onNext(Statistics statistics) {
-                if(stopStats) return;
+                if (stopStats) return;
 
                 //封装传输对象
                 CtrStatsResponseMessage ctrStatsResponseMessage = new CtrStatsResponseMessage();
@@ -310,20 +313,73 @@ public class YunDockerClient {
      *
      * @param cid
      */
-    public void logCtr(String cid) {
+
+    private static final String GLOBAL_LOG_DIR_NAME = "tempLog";
+    private static final String GLOBAL_LOG_NAME = "log.txt";
+
+    public void logCtr(String cid, HttpServletResponse response) {
+
+        String userDir = System.getProperty("user.dir");
+        String globalLogPathName = userDir + File.separator + GLOBAL_LOG_DIR_NAME;
+
+        //判断全局日志目录是否存在，不存在则创建
+        if (!FileUtil.exist(globalLogPathName)) {
+            FileUtil.mkdir(globalLogPathName);
+        }
+
+        String userLogPath = globalLogPathName + File.separator + GLOBAL_LOG_NAME;
+        // 清空日志文件里的内容
+        FileUtil.writeString("", userLogPath, StandardCharsets.UTF_8);
+
         LogContainerResultCallback callback = new LogContainerResultCallback() {
             @Override
             public void onNext(Frame item) {
-                // todo 使用websocket输出日志
-                System.out.println("日志：" + new String(item.getPayload()));
+
+                /*ByteArrayInputStream inputStream = IoUtil.toStream(item.getPayload());
+                byte[] bytes = IoUtil.readBytes(inputStream);
+                try {
+                    IoUtil.write(response.getOutputStream(), true, bytes);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }*/
+                FileUtil.appendString(new String(item.getPayload()), userLogPath, StandardCharsets.UTF_8);
                 super.onNext(item);
             }
         };
-        defaultClient.logContainerCmd(cid)
-                .withStdErr(true)
-                .withStdOut(true)
-                .exec(callback);
-        //如果没有日志输出，可以加一个.awaitCompletion()，阻塞等待日志输出
+
+
+        try {
+            defaultClient.logContainerCmd(cid)
+                    .withStdErr(true)
+                    .withStdOut(true)
+                    .exec(callback).awaitCompletion();
+
+            File file = new File(userLogPath);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            InputStream fis = new BufferedInputStream(fileInputStream);
+            byte[] buffer = new byte[fis.available()];
+            fis.read(buffer);
+            fis.close();
+
+            // 清空response
+            response.reset();
+            // 设置response的Header
+            response.setCharacterEncoding("UTF-8");
+            //Content-Disposition的作用：告知浏览器以何种方式显示响应返回的文件，用浏览器打开还是以附件的形式下载到本地保存
+            //attachment表示以附件方式下载 inline表示在线打开 "Content-Disposition: inline; filename=文件名.mp3"
+            // filename表示文件的默认名称，因为网络传输只支持URL编码的相关支付，因此需要将文件名URL编码后进行传输,前端收到后需要反编码才能获取到真正的名称
+            response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(file.getName(), "UTF-8"));
+            // 告知浏览器文件的大小
+            response.addHeader("Content-Length", "" + file.length());
+            response.setContentType("application/octet-stream");
+
+            OutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
+            outputStream.write(buffer);
+            outputStream.flush();
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.DOCKER_ERROR, e.getMessage());
+        }
+
     }
 
     /**
