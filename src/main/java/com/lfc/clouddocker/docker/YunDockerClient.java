@@ -362,7 +362,7 @@ public class YunDockerClient {
             fis.close();
 
             // 清空response
-            response.reset();
+            //response.reset();
             // 设置response的Header
             response.setCharacterEncoding("UTF-8");
             //Content-Disposition的作用：告知浏览器以何种方式显示响应返回的文件，用浏览器打开还是以附件的形式下载到本地保存
@@ -371,7 +371,10 @@ public class YunDockerClient {
             response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(file.getName(), "UTF-8"));
             // 告知浏览器文件的大小
             response.addHeader("Content-Length", "" + file.length());
-            response.setContentType("application/octet-stream");
+            // 允许跨域
+            // response.addHeader("Access-Control-Allow-Origin", "*");
+            //response.setContentType("application/octet-stream");
+            response.setContentType("application/force-download");
 
             OutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
             outputStream.write(buffer);
@@ -379,7 +382,6 @@ public class YunDockerClient {
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.DOCKER_ERROR, e.getMessage());
         }
-
     }
 
     /**

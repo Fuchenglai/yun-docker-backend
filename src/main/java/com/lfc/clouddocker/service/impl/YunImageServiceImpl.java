@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author ceng
@@ -113,6 +114,28 @@ public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
         //镜像属于该用户并且是私人的
         queryWrapper.eq("id", id).eq("user_id", userId).eq("image_type", 1);
         return yunImageMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public void removeAllPrivateImages() {
+        // 查找出所有私人的镜像
+        QueryWrapper<YunImage> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("image_type", 1);
+        List<YunImage> imageList = list(queryWrapper);
+
+        for (YunImage image : imageList) {
+            // 向docker发送rmi命令
+            String imageName = image.getRepository() + ":" + image.getTag();
+            yunDockerClient.removeImage(imageName);
+
+            // 增加用户余额
+            userService.updateBalance(image.getImageSize(), image.getUserId());
+
+            // 删除数据库中的镜像
+            removeById(image.getId());
+        }
+
+
     }
 }
 

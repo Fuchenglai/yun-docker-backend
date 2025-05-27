@@ -19,7 +19,8 @@ public enum ErrorCode {
     DOCKER_ERROR(50002, "计算节点Docker异常"),
     OPERATION_ERROR(50001, "操作失败"),
 
-    INSUFFICIENT_BALANCE(50003, "余额不足");
+    INSUFFICIENT_BALANCE(50003, "余额不足"),
+    ORDER_STATUS_ERROR(50004, "订单状态异常");
 
     /**
      * 状态码

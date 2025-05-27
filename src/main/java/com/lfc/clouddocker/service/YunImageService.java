@@ -12,5 +12,7 @@ public interface YunImageService extends IService<YunImage> {
 
     void pull(String image, Long userId) throws InterruptedException;
 
-    void removeImage(Long id, Long id1);
+    void removeImage(Long id, Long userId);
+
+    void removeAllPrivateImages();
 }

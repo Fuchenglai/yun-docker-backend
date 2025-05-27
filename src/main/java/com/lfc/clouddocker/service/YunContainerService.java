@@ -35,4 +35,6 @@ public interface YunContainerService extends IService<YunContainer> {
     YunContainer isCtr2User(String containerId, Long userId);
 
     void logCtr(String containerId, Long userId, HttpServletResponse response);
+    
+    void removeAllCtr();
 }

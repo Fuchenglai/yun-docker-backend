@@ -25,6 +25,12 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>4.9.28.ALL</version>
+        </dependency>
+
         <!--        Websocket-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -54,8 +60,8 @@
         <!-- hutool工具类-->
         <dependency>
             <groupId>cn.hutool</groupId>
-            <artifactId>hutool-core</artifactId>
-            <version>5.3.8</version>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.22</version>
         </dependency>
 
         <!-- fastjson -->

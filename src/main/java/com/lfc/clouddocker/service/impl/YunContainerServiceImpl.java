@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.net.InetAddress;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,13 +73,14 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         Set<Long> imageIdSet = containers.stream().map(YunContainer::getImageId).collect(Collectors.toSet());
         Map<Long, List<YunImage>> imageId2YunImageListMap = yunImageService.listByIds(imageIdSet).stream().collect(Collectors.groupingBy(YunImage::getId));
 
-        String ip = "0.0.0.0";
-        try {
+        String ip = "114.215.191.146";
+        // todo 这里得到的是云服务器的内网ip，没有用
+        /*try {
             InetAddress localHost = InetAddress.getLocalHost();
             ip = localHost.getHostAddress();
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.DOCKER_ERROR, e.getMessage());
-        }
+        }*/
 
         //填充信息
         String finalIp = ip;
@@ -185,7 +185,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         save(yunContainer);
 
         //扣减用户余额
-        userService.updateBalance(-300.0, userId);
+        userService.updateBalance(-200.0, userId);
     }
 
     @Override
@@ -208,7 +208,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         }
 
         //增加用户余额
-        userService.updateBalance(300.0, userId);
+        userService.updateBalance(200.0, userId);
 
         Wrapper<YunContainer> queryWrapper = new QueryWrapper<YunContainer>()
                 .eq("container_id", containerId)
@@ -252,5 +252,26 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         }
 
         dockerClient.logCtr(containerId, response);
+    }
+
+    /**
+     * 删除所有的容器
+     */
+    @Override
+    public void removeAllCtr() {
+        List<YunContainer> containers = list();
+        if (containers == null || containers.isEmpty()) {
+            return;
+        }
+
+        for (YunContainer container : containers) {
+
+            //增加用户余额
+            userService.updateBalance(200.0, container.getUserId());
+            //删除数据库中的容器
+            removeById(container.getId());
+            //向docker发送remove命令
+            dockerClient.removeCtr(container.getContainerId());
+        }
     }
 }

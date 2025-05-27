@@ -67,6 +67,22 @@ create table if not exists yun_port
     update_time datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 ) comment '端口' collate = utf8mb4_unicode_ci;
 
+-- 订单表
+CREATE TABLE yun_order
+(
+    id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+    buyer_id     BIGINT                             NOT NULL COMMENT '用户ID',
+    order_id    VARCHAR(64)                        NOT NULL COMMENT '订单ID',
+    credit      INT                                NOT NULL COMMENT '充值积分数量',
+    money       DECIMAL(10, 2)                     NOT NULL COMMENT '支付金额(元)',
+    status      TINYINT                            NOT NULL DEFAULT 0 COMMENT '订单状态：0-待支付,1-支付成功,2-支付失败,3-已取消',
+    trade_no    VARCHAR(64) COMMENT '支付宝交易号',
+    create_time DATETIME default CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
+    finished_time    DATETIME COMMENT '完成时间',
+    cancel_time DATETIME COMMENT '取消时间',
+    is_delete   tinyint  default 0                 not null comment '是否删除'
+) COMMENT '充值订单表' collate = utf8mb4_unicode_ci;
+
 
 
 
