@@ -120,13 +120,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 查询用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_account", userAccount);
-        queryWrapper.eq("user_password", encryptPassword);
         User user = this.baseMapper.selectOne(queryWrapper);
         // 用户不存在
         if (user == null) {
-            log.info("user login failed, userAccount cannot match userPassword");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+            log.info("user login failed, userAccount does not exist");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在！");
         }
+        // 密码错误
+        if (!user.getUserPassword().equals(encryptPassword)) {
+            log.info("user login failed, userAccount cannot match password");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误！");
+        }
+
         // 3. 记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
         return this.getLoginUserVO(user);

@@ -20,7 +20,7 @@ import com.lfc.clouddocker.model.vo.ContainerVO;
 import com.lfc.clouddocker.service.UserService;
 import com.lfc.clouddocker.service.YunContainerService;
 import com.lfc.clouddocker.service.YunImageService;
-import com.lfc.clouddocker.util.PortManageUtil;
+import com.lfc.clouddocker.service.YunPortService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,6 +54,9 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
     @Resource
     private UserService userService;
 
+    @Resource
+    private YunPortService yunPortService;
+
     @Override
     public List<YunContainer> queryByUserId(String userId) {
         QueryWrapper<YunContainer> queryWrapper = new QueryWrapper<YunContainer>()
@@ -73,9 +76,9 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         Set<Long> imageIdSet = containers.stream().map(YunContainer::getImageId).collect(Collectors.toSet());
         Map<Long, List<YunImage>> imageId2YunImageListMap = yunImageService.listByIds(imageIdSet).stream().collect(Collectors.groupingBy(YunImage::getId));
 
-        String ip = "114.215.191.146";
+        String ip = "192.168.254.128";
         // todo 这里得到的是云服务器的内网ip，没有用
-        /*try {
+/*        try {
             InetAddress localHost = InetAddress.getLocalHost();
             ip = localHost.getHostAddress();
         } catch (Exception e) {
@@ -149,15 +152,15 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         //确认端口是否合法
         Integer hostPort = ctrRunRequest.getHostPort();
         Integer containerPort = ctrRunRequest.getContainerPort();
-
-        //如果是公共的镜像，则使用Map里面规定好的端口号，否则生成随机端口号
+        //检查宿主机端口
+        if (hostPort == null || hostPort == 0) {
+            hostPort = yunPortService.generatePort();
+        } else if (!yunPortService.isValidPort(hostPort)) {
+            throw new BusinessException(ErrorCode.HOST_ERROR, "该端口已被占用，请更换端口！");
+        }
+        //如果是公共的镜像，容器端口号使用map里设置的
         if (yunImage.getImageType() == 0) {
-            hostPort = PortManageUtil.generatePort();
-            containerPort = PortManageUtil.getPublicContainerPort(repository);
-        } else if (containerPort != null && containerPort != 0) {
-            if (hostPort == null || !PortManageUtil.isValidPort(hostPort)) {
-                hostPort = PortManageUtil.generatePort();
-            }
+            containerPort = yunPortService.getPublicContainerPort(repository);
         }
 
         //检查name是否存在

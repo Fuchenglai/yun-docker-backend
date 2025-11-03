@@ -10,4 +10,9 @@ import com.lfc.clouddocker.model.entity.YunPort;
 */
 public interface YunPortService extends IService<YunPort> {
 
+    Integer getPublicContainerPort(String publicImage);
+
+    Integer generatePort();
+
+    boolean isValidPort(Integer port);
 }

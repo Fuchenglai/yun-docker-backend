@@ -15,12 +15,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DockerClientConfig {
 
-    @Value("${docker.client.url}")
-    private String dockerClientUrl;
+    @Value("${docker.server.url}")
+    private String dockerServerUrl;
 
     @Bean
     public DockerClient defaultClient() {
-        return DockerClientBuilder.getInstance(dockerClientUrl).build();
+        return DockerClientBuilder.getInstance(dockerServerUrl).build();
     }
 
     @Bean

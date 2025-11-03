@@ -56,7 +56,7 @@ public class YunContainer {
     private String status;
 
     /**
-     * 端口
+     * 端口 9081:6379/tcp
      */
     private String ports;
 
