@@ -152,6 +152,26 @@
             <version>8.0.3</version>
         </dependency>-->
 
+        <!-- 监控基础支持 -->
+        <!--端点提供者-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- 格式转换者 -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <!--数据收集者（干活的）-->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+
+
     </dependencies>
 
     <build>

@@ -3,12 +3,15 @@
 # @from <a href="https://yupi.icu">编程导航知识星球</a>1
 
 docker:
-  client:
-    url: tcp://114.215.191.146:2375
+  server:
+    url: tcp://192.168.254.128:2375
+  open-port:
+    min: 9000
+    max: 10000
 
 spring:
   application:
-    name: cloud-docker
+    name: yun-docker
   # 默认 dev 环境
   profiles:
     active: dev
@@ -26,8 +29,8 @@ spring:
   # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://114.215.191.146:3306/yun_docker?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: yun_docker
+    url: jdbc:mysql://localhost:3306/yun_docker?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
     password: 123456
   # Redis 配置
   # todo 需替换配置，然后取消注释
@@ -102,10 +105,20 @@ alipay:
   appId: 2021000148645743
   merchantPrivateKey: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCci29t7ohVyWY4DIacmXlfUt1uN+c7NXNgxCPOY1WieqOcDBwAeDDK7sl7bmAtQvT7xqZ7NWzG+HDAg2xa3fKjuPxfvfqiAKoo6kTkf/NMvwsFnia+gR5pJc0b4ISGYLZG54LptbCoVXnwFsBpdqlZPoG0dBo8/jAxgqDEgkf0S0BvZ11+IxwEMnugKGqf6W1JOZ3b/ldGwK9ZTVcpAubJOqYt6PFTwWbx7zDctPIMye24n2WlFHZE5dBVwHUCkoCa8o6NtRJQdLPo0HHSr6RR3oO7OIZvv5Raa4MABVNZZupsVyycAVeXeuhpYuIvIvogM0JZu6V5oqucLdN8t74vAgMBAAECggEAF0DjGXpQSCX1iCfcKxDlJZLCj6fAMlxbOimIhBTfWJZNDVYDJtKztMFJrosTwEVs7KVyf2TNNrUa0o3zH4BOlaFZ48LtovjkTdWWzDZxZpoOQhRe/vdhFA9oa1areOaOzPOAz8SMbETeKxrGFCRrPXV6gNqqNxsu/3u+89HCbHgwZAAIn9qBCfuahJ2lTvjidBX8JJ44lDMIq+6rlOWBbkyGLPhAQkHgJjkj8MCFOjw7feFqTHR0Fbtec0Fa2T/gjtTM2fjlioSF0WE2Z3T0qXcrgbCVZSHJmkwEczBV54nuqQK46SLgoTNTcwX7LJnpGUdqPyEo3fhwkb1u9b3CAQKBgQD2a4pSmaGcDTRdMbBcKd74x9ImTGIULV7GAG798fpicAIziXYbbN8szeGv5Io5Lpg4YfSc2LItQwXT9o66YStzC8qQaJ+u/kzI8HEgr2zF70e45g7yRSNVfXAkZmT0tZ8Brx8To3ktFh8lZ4fLmsWdr+LqcpykjdBfmULSo3TPLwKBgQCioWxRWEmfMVQYsWqe63pCGFzqfR03fb3SjHQ6JLp1kydXphgUPQdY/AVz4FspWJgQHMONIlra8zc1LtblnCZ/zOsLgnhokcQw+ZuEItS7+kzR6QOhUoYwgL4UBErMFzO/UrTuS3OU7Tq3Pk0Nun4v/fYoWAC8ahdJI+ukb9hBAQKBgQDB52mXCdFDrJhR5TGztDcCaKqS/HQJEJKNF/Y+2dR+9UimKTrI5ejPpso60Il76ZBafaowacv7FcxWOKOjQachBlxFOi69Uto1HA7I+4GKV3mGo3GLbqAZO3WtDu3OKcSPXLAFkhNeSRQFKOyQaJ+sL6VNexaL3hPjxgPxIDJgfQKBgAGnuO1/A4jOPLffnmEtrlnb2547Vb/J1NO+wDQTSZ6Gt+DJfPc/w8JhFkEeqG7cSvfnAwp9rgUKcqZk6qT9mNq2IDJGyqjtytxgvfdzT0z2eC+uum265Ei8FrMndAdtuQYadmLye6OpYm6ZALnCCyS75fR1KNTCE6iX5/8NcFsBAoGANU564p/uqUouj1wyLRstRFCQO2stSHj/PgTNPlkqcpc2dv9s019CisG0ggPM5PdHtFiNmwJeOPe8Qv44SeXziYDdlb5vRBH5YONDnQLTMeKWYxNnHyjEf6ODzX6GLmHeODEEwyhiB2NOSa8oIgV8UahPKvsFMOJZLKFkmbZuj0A=
   alipayPublicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAk5eVeGyyuiaD87yY6tAiI8eiHWVKxIE55gfjZv9sFZ1Ku3/BZwt1Jg/C4W3CVLrpwS90G/tHnpZyc/QpQ0GXkzbBqB1aWLYXJ73+WnHqQRk1hHVkphkd3LIwsIDAU0A2NGdE0OQ/d+qXpVWrqqk8N9A1p4SHIVwc9UXwEWrpRLek5zk+xg2xKUQkAFtyhmduc4AE7OlSV7hP48wbg+8MdwfqHAiHmlQn/Q4KwqUwwdr67awN6zoJ6VvxLh71tAeR8yt1+qY0M8X+i26nsqOcJM9GnXd3Bql7GkADId6AlAzaZB9ZoKfIDBjD6G2fffudoleqDzZJ4c7NfD0BQV/IkwIDAQAB
-  notifyUrl: http://h3a96945.natappfree.cc/api/alipay/notify
-  returnUrl: http://localhost:3000/myOrder/
+  notifyUrl: http://127.0.0.1:8088/api/alipay/notify
+  returnUrl: http://127.0.0.1:3000/myOrder/
   signType: RSA2
   charset: utf-8
   # 我的支付宝网关地址
   gatewayUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus  # 暴露监控端点
+  endpoint:
+    health:
+      show-details: always  # 显示详细信息
 
