@@ -17,6 +17,7 @@ import com.lfc.clouddocker.model.entity.User;
 import com.lfc.clouddocker.model.entity.YunContainer;
 import com.lfc.clouddocker.model.entity.YunImage;
 import com.lfc.clouddocker.model.vo.ContainerVO;
+import com.lfc.clouddocker.monitor.MetricsCollector;
 import com.lfc.clouddocker.service.UserService;
 import com.lfc.clouddocker.service.YunContainerService;
 import com.lfc.clouddocker.service.YunImageService;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,6 +58,9 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
 
     @Resource
     private YunPortService yunPortService;
+
+    @Resource
+    private MetricsCollector metricsCollector;
 
     @Override
     public List<YunContainer> queryByUserId(String userId) {
@@ -143,6 +148,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
         log.info("yunImage:{}", yunImage);
+        // 检查镜像是否属于当前用户，检查镜像是否是公共镜像
         if (!Objects.equals(yunImage.getUserId(), userId) && yunImage.getImageType() != 0) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
@@ -169,13 +175,30 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
             name = repository + "_" + UUID.randomUUID().toString().substring(0, 5);
         }
 
-        //String image = repository + ":" + yunImage.getTag();
         String image = yunImage.getImageId();
 
         log.info("发送run命令之前的主机端口号：{}，容器端口号：{}", hostPort, containerPort);
 
+        long startTime = System.currentTimeMillis();
+
         //向docker发送run命令
-        String ctrId = dockerClient.runCtr(image, hostPort, containerPort, name);
+        String ctrId = null;
+        try {
+            ctrId = dockerClient.runCtr(image, hostPort, containerPort, name);
+        } catch (Exception e) {
+            //记录镜像运行失败的次数
+            metricsCollector.recordError(String.valueOf(userId), repository + ":" + yunImage.getTag(), e.getMessage());
+            throw new BusinessException(ErrorCode.DOCKER_ERROR, e.getMessage());
+        }
+
+        //记录镜像运行成功的响应时间
+        long endTime = System.currentTimeMillis();
+        Duration duration = Duration.ofMillis(endTime - startTime);
+        metricsCollector.recordResponseTime(String.valueOf(userId), repository + ":" + yunImage.getTag(), duration);
+
+        //记录镜像被创建的次数
+        metricsCollector.recordRequest(String.valueOf(userId), repository + ":" + yunImage.getTag(), "running");
+
 
         //将容器信息保存到数据库
         YunContainer yunContainer = new YunContainer().setImageId(yunImage.getId())

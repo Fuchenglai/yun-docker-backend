@@ -79,7 +79,7 @@ public class YunDockerClient {
 
     /*-----------------------------上面为镜像，下面为容器------------------------------------*/
 
-    public String runCtr(String imageId, Integer hostPort, Integer containerPort, String name) {
+    public String runCtr(String imageId, Integer hostPort, Integer containerPort, String name) throws Exception {
 
 
         CreateContainerCmd containerCmd = defaultClient.createContainerCmd(imageId);
