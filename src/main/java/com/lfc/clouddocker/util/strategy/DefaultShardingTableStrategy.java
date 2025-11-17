@@ -1,7 +1,9 @@
 package com.lfc.clouddocker.util.strategy;
 
 /**
- * @author Hollis
+ * 默认的分表策略
+ *
+ * @author laifucheng
  */
 public class DefaultShardingTableStrategy implements ShardingTableStrategy {
 

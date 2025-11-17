@@ -2,6 +2,12 @@ package com.lfc.clouddocker.util;
 
 import java.security.MessageDigest;
 
+/**
+ * MD5工具类
+ *
+ * @author laifucheng
+ */
+
 public class MD5Util {
 
 	public static String byteArrayToHexString(byte b[]) {

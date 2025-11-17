@@ -18,6 +18,12 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * WebSocket服务端
+ *
+ * @author laifucheng
+ */
+
 @ServerEndpoint("/webSocket/{userId}")
 @Component
 @Slf4j

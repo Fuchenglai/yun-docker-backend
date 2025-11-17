@@ -6,9 +6,9 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/3/31
- * @Profile:
+ * Docker客户端示例
+ *
+ * @author laifucheng
  */
 public class MyDockerExample {
     /*public static void main(String[] args) throws InterruptedException {

@@ -4,9 +4,9 @@ import lombok.Data;
 import lombok.ToString;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/5/18
- * @Profile:
+ * 异步支付回调视图层
+ *
+ * @author laifucheng
  */
 @Data
 @ToString

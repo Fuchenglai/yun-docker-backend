@@ -1,7 +1,9 @@
 package com.lfc.clouddocker.util.id;
 
 /**
- * @author Hollis
+ * 业务编码枚举
+ *
+ * @author laifucheng
  */
 public enum BusinessCode {
     /**

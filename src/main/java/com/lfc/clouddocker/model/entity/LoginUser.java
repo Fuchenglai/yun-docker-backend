@@ -7,9 +7,9 @@ import lombok.experimental.Accessors;
 import java.util.Date;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/1
- * @Profile: 在线用户信息
+ * 登录用户信息
+ *
+ * @author laifucheng
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

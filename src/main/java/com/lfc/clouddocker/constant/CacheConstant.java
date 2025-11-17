@@ -1,10 +1,11 @@
 package com.lfc.clouddocker.constant;
 
 /**
- * @author: huangxutao
- * @date: 2019-06-14
- * @description: 缓存常量
+ * 缓存常量
+ *
+ * @author laifucheng
  */
+
 public interface CacheConstant {
 
 	/**

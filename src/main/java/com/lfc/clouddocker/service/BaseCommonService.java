@@ -5,6 +5,8 @@ import com.lfc.clouddocker.model.entity.LoginUser;
 
 /**
  * common接口
+ *
+ * @author laifucheng
  */
 public interface BaseCommonService {
 

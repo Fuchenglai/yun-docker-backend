@@ -22,9 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/1
- * @Profile:
+ * 容器接口
+ *
+ * @author laifucheng
  */
 @Controller
 @ResponseBody

@@ -11,9 +11,9 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/5/17
- * @Profile:
+ * 订单视图
+ *
+ * @author laifucheng
  */
 @Data
 @Accessors(chain = true)

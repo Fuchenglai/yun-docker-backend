@@ -1,6 +1,8 @@
 package com.lfc.clouddocker.constant;
 /**
  * 数据库上下文常量
+ *
+ * @author laifucheng
  */
 public interface DataBaseConstant {
 	//*********数据库类型****************************************

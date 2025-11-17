@@ -5,9 +5,9 @@ import com.lfc.clouddocker.util.strategy.DefaultShardingTableStrategy;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * @author Hollis
- * <p>
- * 分布式ID
+ * 分布式ID生成器
+ *
+ * @author laifucheng
  */
 public class DistributeID {
 

@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 /**
- * @Description: TODO
- * @author: lsq
- * @date: 2021年08月09日 15:29
+ * 文件上传类型过滤
+ *
+ * @author laifucheng
  */
 public class FileTypeFilter {
 

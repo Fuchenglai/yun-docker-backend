@@ -13,6 +13,12 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 解决Failed to start bean ‘documentationPluginsBootstrapper’；的配置类
+ *
+ * @author laifucheng
+ */
+
 @Configuration
 public class SpringfoxConfig {
     @Bean

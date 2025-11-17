@@ -4,6 +4,12 @@ import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
 import com.lfc.clouddocker.model.dto.LogDTO;
 import org.apache.ibatis.annotations.Param;
 
+/**
+ * 基础公共mapper接口
+ *
+ * @author laifucheng
+ */
+
 public interface BaseCommonMapper {
 
     /**

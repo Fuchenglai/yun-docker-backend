@@ -11,6 +11,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
+/**
+ * SpringContext 工具类
+ *
+ * @author laifucheng
+ */
+
 @Component
 public class SpringContextUtils implements ApplicationContextAware {
 

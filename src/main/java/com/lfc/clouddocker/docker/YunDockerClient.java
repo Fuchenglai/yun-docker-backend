@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/2
- * @Profile:
+ * Docker客户端示例
+ *
+ * @author laifucheng
  */
 @Slf4j
 @Component

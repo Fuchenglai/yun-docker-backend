@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/5/3
- * @Profile: 删除镜像，容器等资源
+ * 定时释放镜像，容器等资源
+ *
+ * @author laifucheng
  */
 
 @Slf4j

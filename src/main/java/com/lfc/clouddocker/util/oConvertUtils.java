@@ -21,9 +21,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * 通用转换类
  *
- * @Author  张代浩
- *
+ * @author laifucheng
  */
 @Slf4j
 public class oConvertUtils {

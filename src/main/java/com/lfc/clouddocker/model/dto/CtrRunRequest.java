@@ -5,9 +5,9 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/5
- * @Profile:
+ * 容器运行请求
+ *
+ * @author laifucheng
  */
 @Data
 public class CtrRunRequest implements Serializable {

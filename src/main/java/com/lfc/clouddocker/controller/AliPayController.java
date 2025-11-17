@@ -20,6 +20,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * 支付宝支付接口
+ *
+ * @author laifucheng
+ */
+
 @Controller
 @RequestMapping("/alipay")
 @Slf4j

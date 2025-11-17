@@ -8,6 +8,12 @@ import javax.crypto.spec.PBEParameterSpec;
 import java.security.Key;
 import java.security.SecureRandom;
 
+/**
+ * 密码工具类
+ *
+ * @author laifucheng
+ */
+
 public class PasswordUtil {
 
 	/**

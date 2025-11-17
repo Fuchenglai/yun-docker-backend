@@ -10,9 +10,10 @@ import lombok.experimental.Accessors;
 import java.util.Date;
 
 /**
- * 镜像
+ * 镜像实体
  *
  * @TableName yun_image
+ * @author laifucheng
  */
 @TableName(value = "yun_image")
 @Accessors(chain = true)

@@ -1,9 +1,9 @@
 package com.lfc.clouddocker.util;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/7
- * @Profile:
+ * 随机昵称生成器
+ *
+ * @author laifucheng
  */
 public class RandomNameUtil {
     private static final String[] ADJECTIVES = {

@@ -7,9 +7,9 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/1
- * @Profile:
+ * 容器数据库操作
+ *
+ * @author laifucheng
  */
 public interface YunContainerMapper extends BaseMapper<YunContainer> {
 

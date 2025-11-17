@@ -11,8 +11,7 @@ import java.lang.annotation.Target;
  * 如果某个接口必须是登录状态才能调用，@AuthCheck(mustRole = UserConstant.DEFAULT_ROLE)
  * 如果某个接口必须是管理员登录状态才能调用，@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ * @author laifucheng
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

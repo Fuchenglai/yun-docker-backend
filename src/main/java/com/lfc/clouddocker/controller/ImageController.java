@@ -19,9 +19,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/1
- * @Profile:
+ * 镜像接口
+ *
+ * @author laifucheng
  */
 
 @Controller

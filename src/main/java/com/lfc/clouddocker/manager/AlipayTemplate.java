@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/5/17
- * @Profile:
+ * 支付宝支付模板类
+ *
+ * @author laifucheng
  */
 @ConfigurationProperties(prefix = "alipay")
 @Component

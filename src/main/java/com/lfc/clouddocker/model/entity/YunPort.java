@@ -10,9 +10,10 @@ import lombok.experimental.Accessors;
 import java.util.Date;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/3
- * @Profile:
+ * 端口实体
+ *
+ * @TableName yun_port
+ * @author laifucheng
  */
 
 @Data

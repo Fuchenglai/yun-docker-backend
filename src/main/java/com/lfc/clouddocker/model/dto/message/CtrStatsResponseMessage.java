@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/12
- * @Profile:
+ * 容器统计响应消息
+ *
+ * @author laifucheng
  */
 @Data
 @Accessors(chain = true)

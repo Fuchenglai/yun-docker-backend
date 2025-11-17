@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/1
- * @Profile:
+ * docker客户端配置
+ *
+ * @author laifucheng
  */
 @Configuration
 public class DockerClientConfig {

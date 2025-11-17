@@ -1,7 +1,9 @@
 package com.lfc.clouddocker.util.strategy;
 
 /**
- * @author Hollis
+ * 分表策略枚举
+ *
+ * @author laifucheng
  */
 public enum ShardingStrategyEnum {
     /**

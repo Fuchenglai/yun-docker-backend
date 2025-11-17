@@ -1,7 +1,9 @@
 package com.lfc.clouddocker.util.strategy;
 
 /**
- * @author Hollis
+ * 分表策略接口
+ *
+ * @author laifucheng
  */
 public interface ShardingTableStrategy {
 

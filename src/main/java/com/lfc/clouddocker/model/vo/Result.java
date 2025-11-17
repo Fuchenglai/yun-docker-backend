@@ -7,9 +7,9 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * @Author: 赖富城
- * @CreateTime: 2025/4/1
- * @Profile: 接口返回数据格式
+ * 接口返回数据格式
+ *
+ * @author laifucheng
  */
 @Data
 public class Result<T> implements Serializable {

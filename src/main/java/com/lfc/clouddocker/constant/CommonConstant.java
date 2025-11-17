@@ -1,5 +1,12 @@
 package com.lfc.clouddocker.constant;
 
+
+/**
+ * 通用常量信息
+ *
+ * @author laifucheng
+ */
+
 public interface CommonConstant {
 
     /**

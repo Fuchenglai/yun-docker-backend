@@ -7,8 +7,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 日志对象
- * cloud api 用到的接口传输对象
+ * 日志传输对象
+ *
+ * @author laifucheng
  */
 @Data
 public class LogDTO implements Serializable {

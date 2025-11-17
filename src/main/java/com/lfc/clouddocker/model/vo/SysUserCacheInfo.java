@@ -5,6 +5,12 @@ import com.lfc.clouddocker.util.DateUtils;
 
 import java.util.List;
 
+/**
+ * 用户缓存信息
+ *
+ * @author laifucheng
+ */
+
 public class SysUserCacheInfo {
 
 	private String sysUserCode;

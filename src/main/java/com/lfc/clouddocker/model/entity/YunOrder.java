@@ -12,6 +12,7 @@ import java.util.Date;
 /**
  * 充值订单表
  * @TableName yun_order
+ * @author laifucheng
  */
 @TableName(value ="yun_order")
 @Data

@@ -13,6 +13,13 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+/**
+ * 通用工具类
+ *
+ * @author laifucheng
+ */
+
 @Slf4j
 public class CommonUtils {
 
