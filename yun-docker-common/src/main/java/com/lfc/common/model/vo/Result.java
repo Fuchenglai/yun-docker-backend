@@ -1,7 +1,7 @@
 package com.lfc.common.model.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.lfc.yundocker.constant.CommonConstant;
+import com.lfc.common.constant.CommonConstant;
 import lombok.Data;
 
 import java.io.Serializable;

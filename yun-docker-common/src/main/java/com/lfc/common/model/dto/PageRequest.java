@@ -1,6 +1,6 @@
 package com.lfc.common.model.dto;
 
-import com.lfc.yundocker.constant.CommonConstant;
+import com.lfc.common.constant.CommonConstant;
 import lombok.Data;
 
 /**

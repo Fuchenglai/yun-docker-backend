@@ -1,6 +1,6 @@
 package com.lfc.common.model.vo;
 
-import com.lfc.yundocker.model.entity.YunContainer;
+import com.lfc.common.model.entity.YunContainer;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

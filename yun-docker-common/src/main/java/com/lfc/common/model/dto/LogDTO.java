@@ -1,6 +1,6 @@
 package com.lfc.common.model.dto;
 
-import com.lfc.yundocker.model.entity.LoginUser;
+import com.lfc.common.model.entity.LoginUser;
 import lombok.Data;
 
 import java.io.Serializable;

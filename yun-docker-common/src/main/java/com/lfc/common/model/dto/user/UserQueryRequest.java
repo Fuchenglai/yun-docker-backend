@@ -1,6 +1,6 @@
 package com.lfc.common.model.dto.user;
 
-import com.lfc.yundocker.common.PageRequest;
+import com.lfc.common.model.dto.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
