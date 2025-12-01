@@ -1,6 +1,6 @@
 package com.lfc.common.util;
 
-import com.lfc.yundocker.constant.ServiceNameConstants;
+import com.lfc.common.constant.ServiceNameConstants;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
