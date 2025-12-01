@@ -1,0 +1,23 @@
+package com.lfc.yundocker.mapper;
+
+import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
+import com.lfc.yundocker.model.dto.LogDTO;
+import org.apache.ibatis.annotations.Param;
+
+/**
+ * 基础公共mapper接口
+ *
+ * @author laifucheng
+ */
+
+public interface BaseCommonMapper {
+
+    /**
+     * 保存日志
+     * @param dto
+     */
+    //@SqlParser(filter=true)
+    @InterceptorIgnore(illegalSql = "true", tenantLine = "true")
+    void saveLog(@Param("dto") LogDTO dto);
+
+}
