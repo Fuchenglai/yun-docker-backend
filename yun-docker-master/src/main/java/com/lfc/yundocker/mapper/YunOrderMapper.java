@@ -1,7 +1,7 @@
 package com.lfc.yundocker.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.lfc.yundocker.model.entity.YunOrder;
+import com.lfc.yundocker.common.model.entity.YunOrder;
 
 /**
 * @author ceng

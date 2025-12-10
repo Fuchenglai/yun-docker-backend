@@ -1,9 +1,9 @@
 package com.lfc.yundocker.controller;
 
 import cn.hutool.core.io.FileUtil;
-import com.lfc.yundocker.common.ErrorCode;
-import com.lfc.yundocker.exception.BusinessException;
-import com.lfc.yundocker.model.enums.FileUploadBizEnum;
+import com.lfc.yundocker.common.exception.BusinessException;
+import com.lfc.yundocker.common.model.enums.ErrorCode;
+import com.lfc.yundocker.common.model.enums.FileUploadBizEnum;
 import com.lfc.yundocker.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;

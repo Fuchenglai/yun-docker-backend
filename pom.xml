@@ -19,6 +19,8 @@
         <module>yun-docker-common</module>
         <module>yun-docker-master</module>
         <module>yun-docker-worker</module>
+        <module>yun-docker-api</module>
+        <module>embedded-zookeeper</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -31,6 +33,13 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <!-- Dubbo Spring Boot Starter -->
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
+                <version>2.7.21</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
@@ -129,5 +138,28 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <repositories>
+        <!-- 从阿里云仓库下载 -->
+        <repository>
+            <id>aliyunmaven</id>
+            <name>aliyun maven</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+
+        <!-- 补充 Maven Central -->
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo1.maven.org/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+
+    </repositories>
 
 </project>

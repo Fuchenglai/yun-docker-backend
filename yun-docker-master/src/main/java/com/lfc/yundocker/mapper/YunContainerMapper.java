@@ -1,7 +1,7 @@
 package com.lfc.yundocker.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.lfc.yundocker.model.entity.YunContainer;
+import com.lfc.yundocker.common.model.entity.YunContainer;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;

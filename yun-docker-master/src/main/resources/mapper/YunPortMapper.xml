@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lfc.yundocker.mapper.YunPortMapper">
 
-    <resultMap id="BaseResultMap" type="com.lfc.yundocker.model.entity.YunPort">
+    <resultMap id="BaseResultMap" type="com.lfc.yundocker.common.model.entity.YunPort">
             <id property="id" column="id" />
             <result property="port" column="port" />
             <result property="createTime" column="create_time" />

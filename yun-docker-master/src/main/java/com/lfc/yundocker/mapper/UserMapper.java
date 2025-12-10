@@ -1,7 +1,7 @@
 package com.lfc.yundocker.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.lfc.yundocker.model.entity.User;
+import com.lfc.yundocker.common.model.entity.User;
 
 /**
  * 用户数据库操作

@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lfc.yundocker.mapper.YunOrderMapper">
 
-    <resultMap id="BaseResultMap" type="com.lfc.yundocker.model.entity.YunOrder">
+    <resultMap id="BaseResultMap" type="com.lfc.yundocker.common.model.entity.YunOrder">
             <id property="id" column="id" />
             <result property="buyerId" column="buyer_id" />
             <result property="orderId" column="order_id" />

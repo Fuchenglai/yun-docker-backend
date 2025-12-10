@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.lfc.yundocker.mapper.YunImageMapper">
 
-    <resultMap id="BaseResultMap" type="com.lfc.yundocker.model.entity.YunImage">
+    <resultMap id="BaseResultMap" type="com.lfc.yundocker.common.model.entity.YunImage">
             <id property="id" column="id" />
             <result property="repository" column="repository" />
             <result property="tag" column="tag" />

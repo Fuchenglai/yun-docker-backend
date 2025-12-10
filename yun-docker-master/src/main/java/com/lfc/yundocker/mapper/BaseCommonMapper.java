@@ -1,7 +1,7 @@
 package com.lfc.yundocker.mapper;
 
 import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
-import com.lfc.yundocker.model.dto.LogDTO;
+import com.lfc.yundocker.common.model.dto.LogDTO;
 import org.apache.ibatis.annotations.Param;
 
 /**

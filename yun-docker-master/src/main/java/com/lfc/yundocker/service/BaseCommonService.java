@@ -1,7 +1,7 @@
 package com.lfc.yundocker.service;
 
-import com.lfc.yundocker.model.dto.LogDTO;
-import com.lfc.yundocker.model.entity.LoginUser;
+import com.lfc.yundocker.common.model.dto.LogDTO;
+import com.lfc.yundocker.common.model.entity.LoginUser;
 
 /**
  * common接口

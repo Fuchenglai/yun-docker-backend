@@ -1,10 +1,10 @@
 package com.lfc.yundocker.aop;
 
 import com.lfc.yundocker.annotation.AuthCheck;
-import com.lfc.yundocker.common.ErrorCode;
-import com.lfc.yundocker.exception.BusinessException;
-import com.lfc.yundocker.model.entity.User;
-import com.lfc.yundocker.model.enums.UserRoleEnum;
+import com.lfc.yundocker.common.exception.BusinessException;
+import com.lfc.yundocker.common.model.entity.User;
+import com.lfc.yundocker.common.model.enums.ErrorCode;
+import com.lfc.yundocker.common.model.enums.UserRoleEnum;
 import com.lfc.yundocker.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;

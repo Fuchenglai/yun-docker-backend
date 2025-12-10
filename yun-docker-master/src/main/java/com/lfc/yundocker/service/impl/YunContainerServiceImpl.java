@@ -4,25 +4,22 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.lfc.yundocker.common.BaseResponse;
-import com.lfc.yundocker.common.ErrorCode;
-import com.lfc.yundocker.common.ResultUtils;
-import com.lfc.yundocker.constant.CtrStatusConstant;
-import com.lfc.yundocker.docker.YunDockerClient;
-import com.lfc.yundocker.exception.BusinessException;
+import com.lfc.yundocker.common.constant.CtrStatusConstant;
+import com.lfc.yundocker.common.exception.BusinessException;
+import com.lfc.yundocker.common.model.dto.BaseResponse;
+import com.lfc.yundocker.common.model.enums.ErrorCode;
+import com.lfc.yundocker.common.util.ResultUtils;
 import com.lfc.yundocker.mapper.YunContainerMapper;
 import com.lfc.yundocker.mapper.YunImageMapper;
-import com.lfc.yundocker.model.dto.CtrRunRequest;
-import com.lfc.yundocker.model.entity.User;
-import com.lfc.yundocker.model.entity.YunContainer;
-import com.lfc.yundocker.model.entity.YunImage;
-import com.lfc.yundocker.model.vo.ContainerVO;
+import com.lfc.yundocker.common.model.dto.CtrRunRequest;
+import com.lfc.yundocker.common.model.entity.User;
+import com.lfc.yundocker.common.model.entity.YunContainer;
+import com.lfc.yundocker.common.model.entity.YunImage;
+import com.lfc.yundocker.common.model.vo.ContainerVO;
 import com.lfc.yundocker.monitor.MetricsCollector;
-import com.lfc.yundocker.service.UserService;
-import com.lfc.yundocker.service.YunContainerService;
-import com.lfc.yundocker.service.YunImageService;
-import com.lfc.yundocker.service.YunPortService;
+import com.lfc.yundocker.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,8 +47,8 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
     @Resource
     private YunImageService yunImageService;
 
-    @Autowired
-    private YunDockerClient dockerClient;
+    @DubboReference
+    private RpcDockerService rpcDockerService;
 
     @Resource
     private UserService userService;
@@ -115,7 +112,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
 
         if (yunContainer.getStatus().equals(CtrStatusConstant.EXITED)) {
             //向docker发送start命令
-            if (dockerClient.startCtr(containerId)) {
+            if (rpcDockerService.startCtr(containerId)) {
                 //数据库持久化
                 yunContainer.setStatus(CtrStatusConstant.RUNNING);
                 return updateById(yunContainer);
@@ -124,7 +121,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
             }
 
         } else if (yunContainer.getStatus().equals(CtrStatusConstant.RUNNING)) {
-            if (dockerClient.stopCtr(containerId)) {
+            if (rpcDockerService.stopCtr(containerId)) {
                 yunContainer.setStatus(CtrStatusConstant.EXITED);
                 return updateById(yunContainer);
             }
@@ -184,7 +181,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         //向docker发送run命令
         String ctrId = null;
         try {
-            ctrId = dockerClient.runCtr(image, hostPort, containerPort, name);
+            ctrId = rpcDockerService.runCtr(image, hostPort, containerPort, name);
         } catch (Exception e) {
             //记录镜像运行失败的次数
             metricsCollector.recordError(String.valueOf(userId), repository + ":" + yunImage.getTag(), e.getMessage());
@@ -222,7 +219,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         }
 
         //向docker发送restart命令
-        return dockerClient.restartCtr(containerId);
+        return rpcDockerService.restartCtr(containerId);
 
     }
 
@@ -242,7 +239,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         yunContainerMapper.delete(queryWrapper);
 
         //向docker发送remove命令
-        return dockerClient.removeCtr(containerId);
+        return rpcDockerService.removeCtr(containerId);
     }
 
     @Override
@@ -251,7 +248,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         if (yunContainer == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        dockerClient.readCtrStats(containerId, userId);
+        rpcDockerService.readCtrStats(containerId, userId);
 
         return ResultUtils.success("操作成功！");
     }
@@ -277,7 +274,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
 
-        dockerClient.logCtr(containerId, response);
+        rpcDockerService.logCtr(containerId, response);
     }
 
     /**
@@ -297,7 +294,7 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
             //删除数据库中的容器
             removeById(container.getId());
             //向docker发送remove命令
-            dockerClient.removeCtr(container.getContainerId());
+            rpcDockerService.removeCtr(container.getContainerId());
         }
     }
 }

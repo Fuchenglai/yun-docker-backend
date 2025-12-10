@@ -4,18 +4,18 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.lfc.yundocker.common.ErrorCode;
-import com.lfc.yundocker.constant.CommonConstant;
-import com.lfc.yundocker.exception.BusinessException;
+import com.lfc.yundocker.common.constant.CommonConstant;
+import com.lfc.yundocker.common.exception.BusinessException;
+import com.lfc.yundocker.common.model.enums.ErrorCode;
 import com.lfc.yundocker.mapper.UserMapper;
-import com.lfc.yundocker.model.dto.user.UserQueryRequest;
-import com.lfc.yundocker.model.entity.User;
-import com.lfc.yundocker.model.enums.UserRoleEnum;
-import com.lfc.yundocker.model.vo.LoginUserVO;
-import com.lfc.yundocker.model.vo.UserVO;
+import com.lfc.yundocker.common.model.dto.user.UserQueryRequest;
+import com.lfc.yundocker.common.model.entity.User;
+import com.lfc.yundocker.common.model.enums.UserRoleEnum;
+import com.lfc.yundocker.common.model.vo.LoginUserVO;
+import com.lfc.yundocker.common.model.vo.UserVO;
 import com.lfc.yundocker.service.UserService;
-import com.lfc.yundocker.util.RandomNameUtil;
-import com.lfc.yundocker.util.SqlUtils;
+import com.lfc.yundocker.common.util.RandomNameUtil;
+import com.lfc.yundocker.common.util.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.lfc.yundocker.constant.UserConstant.USER_LOGIN_STATE;
+import static com.lfc.yundocker.common.constant.UserConstant.USER_LOGIN_STATE;
 
 
 /**

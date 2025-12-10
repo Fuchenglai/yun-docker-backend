@@ -6,14 +6,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.model.ContainerConfig;
 import com.github.dockerjava.api.model.ExposedPort;
-import com.lfc.yundocker.common.ErrorCode;
-import com.lfc.yundocker.docker.YunDockerClient;
-import com.lfc.yundocker.exception.BusinessException;
+import com.lfc.yundocker.common.exception.BusinessException;
+import com.lfc.yundocker.common.model.enums.ErrorCode;
 import com.lfc.yundocker.mapper.YunImageMapper;
-import com.lfc.yundocker.model.entity.YunImage;
+import com.lfc.yundocker.common.model.entity.YunImage;
+import com.lfc.yundocker.service.RpcDockerService;
 import com.lfc.yundocker.service.UserService;
 import com.lfc.yundocker.service.YunImageService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -28,8 +28,8 @@ import java.util.List;
 public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
         implements YunImageService {
 
-    @Autowired
-    private YunDockerClient yunDockerClient;
+    @DubboReference
+    private RpcDockerService rpcDockerService;
 
     @Resource
     private YunImageMapper yunImageMapper;
@@ -56,7 +56,7 @@ public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
         }
 
         //向docker发送pull命令
-        InspectImageResponse imageResponse = yunDockerClient.pullImage(image);
+        InspectImageResponse imageResponse = rpcDockerService.pullImage(image);
         ContainerConfig config = imageResponse.getConfig();
         int port = 0;
         if (config != null) {
@@ -92,7 +92,7 @@ public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
 
         //向docker发送rmi命令
         String image = yunImage.getRepository() + ":" + yunImage.getTag();
-        yunDockerClient.removeImage(image);
+        rpcDockerService.removeImage(image);
 
         //增加用户余额
         userService.updateBalance(yunImage.getImageSize(), userId);
@@ -126,7 +126,7 @@ public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
         for (YunImage image : imageList) {
             // 向docker发送rmi命令
             String imageName = image.getRepository() + ":" + image.getTag();
-            yunDockerClient.removeImage(imageName);
+            rpcDockerService.removeImage(imageName);
 
             // 增加用户余额
             userService.updateBalance(image.getImageSize(), image.getUserId());

@@ -2,9 +2,10 @@ package com.lfc.yundocker.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.lfc.yundocker.model.entity.YunOrder;
-import com.lfc.yundocker.model.vo.PayAsyncVO;
-import com.lfc.yundocker.model.vo.YunOrderVO;
+import com.lfc.yundocker.common.model.entity.YunOrder;
+import com.lfc.yundocker.common.model.vo.PayAsyncVO;
+import com.lfc.yundocker.common.model.vo.YunOrderVO;
+
 
 /**
 * @author ceng

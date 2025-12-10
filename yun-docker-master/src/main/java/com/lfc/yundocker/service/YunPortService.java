@@ -1,7 +1,7 @@
 package com.lfc.yundocker.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.lfc.yundocker.model.entity.YunPort;
+import com.lfc.yundocker.common.model.entity.YunPort;
 
 /**
 * @author ceng
