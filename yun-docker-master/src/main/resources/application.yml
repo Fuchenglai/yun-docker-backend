@@ -6,6 +6,9 @@ dubbo:
   protocol:
     name: dubbo
     port: -1
+  consumer:
+    timeout: 5000   # 全局超时时间（毫秒）
+    retries: 0
 
 spring:
   application:
