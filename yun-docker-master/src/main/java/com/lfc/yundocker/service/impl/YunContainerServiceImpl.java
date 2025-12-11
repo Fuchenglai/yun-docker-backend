@@ -20,14 +20,17 @@ import com.lfc.yundocker.monitor.MetricsCollector;
 import com.lfc.yundocker.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.*;
 
 /**
  * 容器服务实现
@@ -274,7 +277,21 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
 
-        rpcDockerService.logCtr(containerId, response);
+        try {
+            byte[] data = rpcDockerService.logCtr(containerId);
+
+            response.setCharacterEncoding("UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode("log.txt", "UTF-8"));
+            response.addHeader("Content-Length", String.valueOf(data.length));
+            response.setContentType("application/force-download");
+
+            OutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
+            outputStream.write(data);
+            outputStream.flush();
+
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.DOCKER_ERROR, e.getMessage());
+        }
     }
 
     /**

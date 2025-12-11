@@ -115,11 +115,12 @@ public interface RpcDockerService {
 
     /**
      * 查看日志
-     * 这里是异步查看，因为日志可能非常多，不可能一直卡在这里
+     * 返回容器日志的字节内容，由调用方写回 HttpServletResponse
      *
-     * @param cid
+     * @param cid 容器ID
+     * @return 日志文件字节数组
      */
-    void logCtr(String cid, HttpServletResponse response);
+    byte[] logCtr(String cid);
 
     /**
      * 删除容器

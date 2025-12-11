@@ -21,9 +21,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +42,7 @@ public class RpcDockerServiceImpl implements RpcDockerService {
 
     private static HashMap<Long, ResultCallback<Statistics>> STATS_CMD_MAP;
 
-    private static final String GLOBAL_LOG_DIR_NAME = "tempLog";
+    private static final String GLOBAL_LOG_DIR_NAME = "yun-docker-master/tempLog";
     private static final String GLOBAL_LOG_NAME = "log.txt";
 
     static {
@@ -338,12 +336,12 @@ public class RpcDockerServiceImpl implements RpcDockerService {
 
     /**
      * 查看日志
-     * 这里是异步查看，因为日志可能非常多，不可能一直卡在这里
+     * 这里是异步查看，因为日志可能非常多，不可能一直输出，一直卡在这里
      *
      * @param cid
      */
     @Override
-    public void logCtr(String cid, HttpServletResponse response) {
+    public byte[] logCtr(String cid) {
 
         String userDir = System.getProperty("user.dir");
         String globalLogPathName = userDir + File.separator + GLOBAL_LOG_DIR_NAME;
@@ -373,7 +371,7 @@ public class RpcDockerServiceImpl implements RpcDockerService {
             }
         };
 
-
+        log.info("查看容器日志：{}", cid);
         try {
             defaultClient.logContainerCmd(cid)
                     .withStdErr(true)
@@ -387,7 +385,9 @@ public class RpcDockerServiceImpl implements RpcDockerService {
             fis.read(buffer);
             fis.close();
 
-            // 清空response
+            return buffer;
+
+            /*// 清空response
             //response.reset();
             // 设置response的Header
             response.setCharacterEncoding("UTF-8");
@@ -404,7 +404,7 @@ public class RpcDockerServiceImpl implements RpcDockerService {
 
             OutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
             outputStream.write(buffer);
-            outputStream.flush();
+            outputStream.flush();*/
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.DOCKER_ERROR, e.getMessage());
         }
