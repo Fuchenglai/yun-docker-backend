@@ -186,6 +186,7 @@ public class RpcDockerServiceImpl implements RpcDockerService {
     }
 
 
+    // todo 当启动redis容器，读取统计数据时会报错：failed: Connection timed out: connect。其他容器正常
     /**
      * 读取容器的统计数据
      *
@@ -239,7 +240,7 @@ public class RpcDockerServiceImpl implements RpcDockerService {
 
             @Override
             public void onStart(Closeable closeable) {
-
+                log.info("开始读取容器统计数据");
             }
 
             @Override
@@ -330,6 +331,7 @@ public class RpcDockerServiceImpl implements RpcDockerService {
      */
     @Override
     public boolean stopCtr(String cid) {
+        log.info("停止容器：{}", cid);
         defaultClient.stopContainerCmd(cid).exec();
         return true;
     }

@@ -107,6 +107,10 @@ public class WebSocketServer {
                 }*/
 
                 //执行任务
+                /**
+                 * @ServerEndpoint 的实例通常由底层 Web 容器（Tomcat 等）创建，不是标准的 Spring 管理 Bean,
+                 * 因此不能直接通过@Autowired注入
+                 */
                 SpringContextUtils.getBean(RpcDockerServiceImpl.class).readCtrStats(ctrId, userId);
 
             } catch (Exception e) {
