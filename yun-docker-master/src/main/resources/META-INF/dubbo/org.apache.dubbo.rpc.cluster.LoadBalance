@@ -1,0 +1,2 @@
+assignurl=com.lfc.yundocker.loadbalance.AssignUrlLoadBalance
+firstcall=com.lfc.yundocker.loadbalance.FirstCallLoadBalance

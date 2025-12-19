@@ -14,6 +14,7 @@ import com.lfc.yundocker.service.RpcDockerService;
 import com.lfc.yundocker.service.UserService;
 import com.lfc.yundocker.service.YunImageService;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.Method;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -28,7 +29,8 @@ import java.util.List;
 public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
         implements YunImageService {
 
-    @DubboReference
+    @DubboReference(methods = {
+            @Method(name = "pullImage", loadbalance = "leastactive")})
     private RpcDockerService rpcDockerService;
 
     @Resource
