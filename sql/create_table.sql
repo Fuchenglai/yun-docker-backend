@@ -49,6 +49,7 @@ create table if not exists yun_container
     command        varchar(256)                       null comment '命令',
     status         varchar(20)                        null comment '状态',
     ports          varchar(64)                        null comment '端口',
+    ip             varchar(64)                       null comment '容器 ip',
     container_name varchar(256)                       null comment '容器名称',
     create_time    datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time    datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
