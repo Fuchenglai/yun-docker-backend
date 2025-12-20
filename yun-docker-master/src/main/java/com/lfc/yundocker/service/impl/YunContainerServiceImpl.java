@@ -21,6 +21,7 @@ import com.lfc.yundocker.monitor.MetricsCollector;
 import com.lfc.yundocker.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.Method;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -52,7 +53,15 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
     @Resource
     private YunImageService yunImageService;
 
-    @DubboReference
+    @DubboReference(methods = {
+            @Method(name = "runCtr", loadbalance = "firstcall"),
+            @Method(name = "readCtrStats", loadbalance = "assignurl"),
+            @Method(name = "closeStatsCmd", loadbalance = "assignurl"),
+            @Method(name = "startCtr", loadbalance = "assignurl"),
+            @Method(name = "stopCtr", loadbalance = "assignurl"),
+            @Method(name = "logCtr", loadbalance = "assignurl"),
+            @Method(name = "removeCtr", loadbalance = "assignurl"),
+            @Method(name = "restartCtr", loadbalance = "assignurl"),})
     private RpcDockerService rpcDockerService;
 
     @Resource

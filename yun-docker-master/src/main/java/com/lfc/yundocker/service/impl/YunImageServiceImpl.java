@@ -29,8 +29,7 @@ import java.util.List;
 public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
         implements YunImageService {
 
-    @DubboReference(methods = {
-            @Method(name = "pullImage", loadbalance = "leastactive")})
+    @DubboReference
     private RpcDockerService rpcDockerService;
 
     @Resource

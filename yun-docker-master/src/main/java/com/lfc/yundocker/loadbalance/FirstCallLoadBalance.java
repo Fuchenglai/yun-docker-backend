@@ -32,7 +32,7 @@ public class FirstCallLoadBalance extends AbstractLoadBalance {
 
         for (int i = 0; i < length; ++i) {
             Invoker<T> invoker = (Invoker) invokers.get(i);
-            int resource = MachineStatus.getRich(invoker.getUrl());
+            int resource = MachineStatus.getRich(invoker.getUrl().getIp());
             if (resource > maxResource) {
                 maxResource = resource;
                 leastRich = i;
