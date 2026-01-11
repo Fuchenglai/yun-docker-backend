@@ -8,7 +8,10 @@ import com.lfc.yundocker.mapper.YunOrderMapper;
 import com.lfc.yundocker.common.model.entity.YunOrder;
 import com.lfc.yundocker.common.model.vo.PayAsyncVO;
 import com.lfc.yundocker.common.model.vo.YunOrderVO;
+import com.lfc.yundocker.service.UserService;
 import com.lfc.yundocker.service.YunOrderService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,9 +24,15 @@ import java.util.stream.Collectors;
  * @description 针对表【yun_order(充值订单表)】的数据库操作Service实现
  * @createDate 2025-05-17 17:10:24
  */
+@Slf4j
 @Service
 public class YunOrderServiceImpl extends ServiceImpl<YunOrderMapper, YunOrder>
         implements YunOrderService {
+
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private YunOrderMapper yunOrderMapper;
 
     @Override
     public Page<YunOrderVO> getOrderVOPage(Page<YunOrder> orderPage) {
@@ -69,12 +78,20 @@ public class YunOrderServiceImpl extends ServiceImpl<YunOrderMapper, YunOrder>
      */
     @Override
     public String handlePayResult(PayAsyncVO vo) {
+        log.info("支付宝异步回调开始");
         if (vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")) {
             String outTradeNo = vo.getOut_trade_no();
             this.update().set("status", 1)
                     .set("trade_no", vo.getTrade_no())
                     .set("finished_time", new Date())
                     .eq("order_id", outTradeNo).update();
+            log.info("订单{}本地状态修改成功", outTradeNo);
+
+            //更新用户积分余额
+            QueryWrapper<YunOrder> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("order_id", outTradeNo);
+            YunOrder yunOrder = yunOrderMapper.selectOne(queryWrapper);
+            userService.updateBalance(Double.valueOf(yunOrder.getCredit()), yunOrder.getBuyerId());
             return "success";
         }
         return "error";
