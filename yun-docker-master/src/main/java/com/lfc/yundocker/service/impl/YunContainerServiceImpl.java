@@ -172,7 +172,8 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         //检查name是否存在
         String name = ctrRunRequest.getName();
         if (name == null || name.isEmpty()) {
-            name = repository + "_" + UUID.randomUUID().toString().substring(0, 5);
+            String[] strings = repository.split("/");
+            name = strings[strings.length-1] + "_" + UUID.randomUUID().toString().substring(0, 5);
         }
 
         String image = yunImage.getImageId();
