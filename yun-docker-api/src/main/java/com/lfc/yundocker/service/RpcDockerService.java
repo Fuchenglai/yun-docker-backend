@@ -2,6 +2,7 @@ package com.lfc.yundocker.service;
 
 import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.model.Container;
+import com.lfc.yundocker.service.dto.ImageResponseDTO;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -15,7 +16,7 @@ public interface RpcDockerService {
      * @return 镜像信息
      * @throws InterruptedException
      */
-    InspectImageResponse pullImage(String image) throws InterruptedException;
+    ImageResponseDTO pullImage(String image) throws InterruptedException;
 
     /**
      * 删除镜像

@@ -13,6 +13,7 @@ import com.lfc.yundocker.common.model.entity.YunImage;
 import com.lfc.yundocker.service.RpcDockerService;
 import com.lfc.yundocker.service.UserService;
 import com.lfc.yundocker.service.YunImageService;
+import com.lfc.yundocker.service.dto.ImageResponseDTO;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ import java.util.List;
 public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
         implements YunImageService {
 
-    @DubboReference
+    @DubboReference(timeout = 120000)
     private RpcDockerService rpcDockerService;
 
     @Resource
@@ -56,15 +57,8 @@ public class YunImageServiceImpl extends ServiceImpl<YunImageMapper, YunImage>
         }
 
         //向docker发送pull命令
-        InspectImageResponse imageResponse = rpcDockerService.pullImage(image);
-        ContainerConfig config = imageResponse.getConfig();
-        int port = 0;
-        if (config != null) {
-            ExposedPort[] exposedPorts = config.getExposedPorts();
-            if (exposedPorts != null && exposedPorts.length > 0) {
-                port = exposedPorts[0].getPort();
-            }
-        }
+        ImageResponseDTO imageResponse = rpcDockerService.pullImage(image);
+        int port = imageResponse.getPort() != null ? imageResponse.getPort() : 0;
 
         // 原格式：sha256:cc44224bfe208a46fbc45471e8f9416f66b75d6307573e29634e7f42e27a9268
         String imageId = imageResponse.getId().split(":")[1];

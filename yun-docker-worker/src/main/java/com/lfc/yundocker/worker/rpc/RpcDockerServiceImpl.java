@@ -15,6 +15,7 @@ import com.lfc.yundocker.common.exception.BusinessException;
 import com.lfc.yundocker.common.model.dto.message.CtrStatsResponseMessage;
 import com.lfc.yundocker.common.model.enums.ErrorCode;
 import com.lfc.yundocker.service.RpcDockerService;
+import com.lfc.yundocker.service.dto.ImageResponseDTO;
 import com.lfc.yundocker.worker.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -50,7 +51,8 @@ public class RpcDockerServiceImpl implements RpcDockerService {
     }
 
     @Override
-    public InspectImageResponse pullImage(String image) throws InterruptedException {
+    public ImageResponseDTO pullImage(String image) throws InterruptedException {
+        log.info("pullImage方法开始被调用：" + image);
         PullImageCmd pullImageCmd = defaultClient.pullImageCmd(image);
         PullImageResultCallback pullImageResultCallback = new PullImageResultCallback() {
             @Override
@@ -60,7 +62,7 @@ public class RpcDockerServiceImpl implements RpcDockerService {
 
             @Override
             public void onNext(PullResponseItem item) {
-                log.info("下载镜像：" + image);
+                log.info("下载镜像中：" + image);
                 super.onNext(item);
             }
         };
@@ -68,7 +70,11 @@ public class RpcDockerServiceImpl implements RpcDockerService {
 
         //获取镜像的详细信息
         InspectImageResponse imageResponse = defaultClient.inspectImageCmd(image).exec();
-        return imageResponse;
+        if(Objects.isNull(imageResponse)){
+            throw new BusinessException(ErrorCode.DOCKER_ERROR);
+        }
+        log.info("下载镜像成功：" + image);
+        return new ImageResponseDTO(imageResponse);
     }
 
     @Override
