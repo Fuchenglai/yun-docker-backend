@@ -37,4 +37,7 @@ public interface YunContainerService extends IService<YunContainer> {
     void logCtr(String containerId, Long userId, HttpServletResponse response);
     
     void removeAllCtr();
+
+    String getWorkerUrl(String containerId);
+
 }

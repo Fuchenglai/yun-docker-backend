@@ -61,6 +61,11 @@ public class YunContainer {
     private String ports;
 
     /**
+     * 容器 ip
+     */
+    private String ip;
+
+    /**
      * 容器名称 用户在启动容器时自定义的名称
      */
     private String containerName;

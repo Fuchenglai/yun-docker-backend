@@ -1,10 +1,9 @@
 package com.lfc.yundocker.service;
 
-import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.model.Container;
 import com.lfc.yundocker.service.dto.ImageResponseDTO;
+import com.lfc.yundocker.common.model.dto.CtrRunResponse;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public interface RpcDockerService {
@@ -35,7 +34,7 @@ public interface RpcDockerService {
      * @param name 容器名称
      * @return 容器id
      */
-    String runCtr(String imageId, Integer hostPort, Integer containerPort, String name);
+     CtrRunResponse runCtr (String imageId, Integer hostPort, Integer containerPort, String name);
 
 
     /**

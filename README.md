@@ -1,14 +1,15 @@
 # yun-docker-backend 🐳
 
-[![GitHub stars](https://img.shields.io/github/stars/Fuchenglai/yun-docker-backend?style=flat-square)](https://github.com/Fuchenglai/yun-docker-backend/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/Fuchenglai/yun-docker-backend?style=flat-square)](https://github.com/Fuchenglai/yun-docker-backend/network)
-[![GitHub issues](https://img.shields.io/github/issues/Fuchenglai/yun-docker-backend?style=flat-square)](https://github.com/Fuchenglai/yun-docker-backend/issues)
 
 ## 📖 项目概述
 
 yun-docker-backend 是一个基于微服务架构的云托管平台后端系统。该项目起源于华南农业大学虚拟云实验平台的开发经验，旨在为开发者提供一站式的容器化应用部署和管理解决方案。
 
 通过本平台，开发者可以轻松地将项目打包为Docker镜像，实现一键部署、监控和管理，大幅简化了传统服务器配置和运维的复杂性。
+
+## 🌐 相关项目
+
+- **前端项目**: [yun-docker-frontend](https://github.com/Fuchenglai/yun-docker-frontend) - 基于Vue3 + Ant Design的现代化管理界面
 
 ## 🎯 核心功能
 
@@ -76,9 +77,6 @@ yun-docker-backend 是一个基于微服务架构的云托管平台后端系统�
 - **支付宝沙箱**: 支付系统集成
 - **Swagger/Knife4j**: API文档生成
 
-## 🌐 相关项目
-
-- **前端项目**: [yun-docker-frontend](https://github.com/Fuchenglai/yun-docker-frontend) - 基于Vue3 + Ant Design的现代化管理界面
 
 ## 🚀 快速开始
 

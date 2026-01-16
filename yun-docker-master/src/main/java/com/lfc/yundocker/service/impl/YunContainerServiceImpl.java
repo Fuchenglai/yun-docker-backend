@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lfc.yundocker.common.constant.CtrStatusConstant;
 import com.lfc.yundocker.common.exception.BusinessException;
 import com.lfc.yundocker.common.model.dto.BaseResponse;
+import com.lfc.yundocker.common.model.dto.CtrRunResponse;
 import com.lfc.yundocker.common.model.enums.ErrorCode;
 import com.lfc.yundocker.common.util.ResultUtils;
 import com.lfc.yundocker.mapper.YunContainerMapper;
@@ -20,7 +21,9 @@ import com.lfc.yundocker.monitor.MetricsCollector;
 import com.lfc.yundocker.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.Method;
 import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
@@ -50,7 +53,15 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
     @Resource
     private YunImageService yunImageService;
 
-    @DubboReference
+    @DubboReference(methods = {
+            @Method(name = "runCtr", loadbalance = "firstcall"),
+            @Method(name = "readCtrStats", loadbalance = "assignurl"),
+            @Method(name = "closeStatsCmd", loadbalance = "assignurl"),
+            @Method(name = "startCtr", loadbalance = "assignurl"),
+            @Method(name = "stopCtr", loadbalance = "assignurl"),
+            @Method(name = "logCtr", loadbalance = "assignurl"),
+            @Method(name = "removeCtr", loadbalance = "assignurl"),
+            @Method(name = "restartCtr", loadbalance = "assignurl"),})
     private RpcDockerService rpcDockerService;
 
     @Resource
@@ -183,9 +194,9 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         long startTime = System.currentTimeMillis();
 
         //向docker发送run命令
-        String ctrId = null;
+        CtrRunResponse ctrRunResponse = new CtrRunResponse();
         try {
-            ctrId = rpcDockerService.runCtr(image, hostPort, containerPort, name);
+            ctrRunResponse = rpcDockerService.runCtr(image, hostPort, containerPort, name);
         } catch (Exception e) {
             //记录镜像运行失败的次数
             metricsCollector.recordError(String.valueOf(userId), repository + ":" + yunImage.getTag(), e.getMessage());
@@ -204,7 +215,8 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
         //将容器信息保存到数据库
         YunContainer yunContainer = new YunContainer().setImageId(yunImage.getId())
                 .setUserId(userId)
-                .setContainerId(ctrId)
+                .setContainerId(ctrRunResponse.getCtrId())
+                .setIp(ctrRunResponse.getIp())
                 .setStatus(CtrStatusConstant.RUNNING).setContainerName(name);
         if (containerPort != null && containerPort != 0) {
             yunContainer.setPorts(hostPort + ":" + containerPort + "/tcp");
@@ -314,5 +326,12 @@ public class YunContainerServiceImpl extends ServiceImpl<YunContainerMapper, Yun
             //向docker发送remove命令
             rpcDockerService.removeCtr(container.getContainerId());
         }
+    }
+
+    @Override
+    public String getWorkerUrl(String containerId) {
+        Wrapper<YunContainer> queryWrapper = new QueryWrapper<YunContainer>().eq("container_id", containerId);
+        YunContainer yunContainer = getOne(queryWrapper);
+        return yunContainer.getIp();
     }
 }

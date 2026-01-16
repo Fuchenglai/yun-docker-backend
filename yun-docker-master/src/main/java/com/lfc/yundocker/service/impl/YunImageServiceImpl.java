@@ -15,6 +15,7 @@ import com.lfc.yundocker.service.UserService;
 import com.lfc.yundocker.service.YunImageService;
 import com.lfc.yundocker.service.dto.ImageResponseDTO;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.dubbo.config.annotation.Method;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

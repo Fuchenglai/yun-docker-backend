@@ -12,10 +12,13 @@ import com.github.dockerjava.core.InvocationBuilder;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.lfc.yundocker.common.exception.BusinessException;
+import com.lfc.yundocker.common.model.dto.CtrRunResponse;
 import com.lfc.yundocker.common.model.dto.message.CtrStatsResponseMessage;
 import com.lfc.yundocker.common.model.enums.ErrorCode;
+import com.lfc.yundocker.common.util.NetUtils;
 import com.lfc.yundocker.service.RpcDockerService;
 import com.lfc.yundocker.service.dto.ImageResponseDTO;
+import com.lfc.yundocker.worker.service.IPAddressService;
 import com.lfc.yundocker.worker.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -40,6 +43,9 @@ public class RpcDockerServiceImpl implements RpcDockerService {
 
     @Autowired
     private ObjectMapper jacksonObjectMapper;
+
+    @Autowired
+    private IPAddressService ipAddressService;
 
     private static HashMap<Long, ResultCallback<Statistics>> STATS_CMD_MAP;
 
@@ -86,7 +92,7 @@ public class RpcDockerServiceImpl implements RpcDockerService {
     /*-----------------------------上面为镜像，下面为容器------------------------------------*/
 
     @Override
-    public String runCtr(String imageId, Integer hostPort, Integer containerPort, String name) {
+    public CtrRunResponse runCtr(String imageId, Integer hostPort, Integer containerPort, String name) {
 
 
         CreateContainerCmd containerCmd = defaultClient.createContainerCmd(imageId);
@@ -107,9 +113,12 @@ public class RpcDockerServiceImpl implements RpcDockerService {
         CreateContainerResponse createContainerResponse = containerCmd.withHostConfig(hostConfig).exec();
 
         //创建完之后，启动容器
-        String id = createContainerResponse.getId();
-        defaultClient.startContainerCmd(id).exec();
-        return id;
+        String ctrId = createContainerResponse.getId();
+        defaultClient.startContainerCmd(ctrId).exec();
+
+        String localIp = ipAddressService.getLocalIpAddress();
+
+         return new CtrRunResponse(ctrId,localIp);
     }
 
     /**
