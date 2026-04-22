@@ -10,7 +10,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 // todo 如需开启 Redis，须移除 exclude 中的内容
-@SpringBootApplication(exclude = {RedisAutoConfiguration.class})
+//@SpringBootApplication(exclude = {RedisAutoConfiguration.class})
+@SpringBootApplication()
 @MapperScan("com.lfc.yundocker.mapper")
 @EnableScheduling
 @EnableWebSocket

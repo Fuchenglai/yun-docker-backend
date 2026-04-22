@@ -101,4 +101,9 @@ public interface CacheConstant {
 	 * 拖拽页面信息缓存
 	 */
 	public static final String DRAG_PAGE_CACHE = "drag:cache:page";
+
+    /**
+     * 缓存key分隔符
+     */
+    public static final String CACHE_KEY_SEPARATOR = ":";
 }
